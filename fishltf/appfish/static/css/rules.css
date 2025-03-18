@@ -1,0 +1,61 @@
+  .rules-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .rules-container  h1, h2, h3 {
+    color: #2c3e50;
+    margin-top: 0;
+  }
+  
+  .rules-container  h1 {
+    font-size: 2.5em;
+    margin-bottom: 0.5em;
+  }
+  
+  .rules-container  h2 {
+    font-size: 1.8em;
+    margin-bottom: 0.5em;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 5px;
+  }
+  
+  .rules-container  h3 {
+    font-size: 1.4em;
+    margin-top: 1em;
+  }
+  
+  .rules-container p {
+    margin: 10px 0;
+  }
+  
+  .rules-container ul {
+    margin: 10px 0 10px 20px;
+    padding-left: 0;
+  }
+  
+  .rules-container  li {
+    margin-bottom: 5px;
+  }
+  
+  pre {
+    background-color: #eef;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-family: Consolas, monospace;
+    font-size: 0.95em;
+  }
+  
+  .formula {
+    font-weight: bold;
+    background-color: #eee;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+  }
+  

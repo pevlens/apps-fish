@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat&family=Lobster&family=Montserrat&family=Oswald&family=Poppins&family=Roboto+Mono&display=swap" rel="stylesheet">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Платформа соревнований по рыбалке{% endblock %}</title>
+    <script src="{% static 'js/base.js' %}" defer></script>
+    {% block link %}
+    <!-- Здесь будет содержимое дочерних шаблонов -->
+    {% endblock %}
+</head>
+<body>
+    <nav>
+        <a href="{% url 'home' %}">Главная</a>
+        <a href="{% url 'trophy' %}">Трофеи</a>
+        <a href="{% url 'stats' %}">Статистика</a>
+        <a href="{% url 'rules' %}">Правила</a>
+        <a href="{% url 'adduser' %}">Cтать участником</a>
+    </nav>
+
+    <main>
+        {% block content %}
+        <!-- Здесь будет содержимое дочерних шаблонов -->
+        {% endblock %}
+    </main>
+    
+    <footer>
+        &copy; 2025 Рыбаки и рыбка. Все права защищены.
+         
+
+        <p> <a href="https://t.me/pol_siarhei" target="_blank"> 
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" width="20" height="20" class="telegram-icon">
+            Техническая поддержка 
+            </a></p>
+
+
+    </footer>
+
+</body>
+</html>

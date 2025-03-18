@@ -1,0 +1,200 @@
+/* Общие стили */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+h1 {
+    text-align: center;
+    color: #162c82;
+    margin-bottom: 20px;
+}
+
+/* Вкладки сезонов */
+.season-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0;
+    width: 30px;
+    height: 40px;
+    margin-left: 9%;
+}
+
+.season-tabs button {
+    padding: 2px 20px;
+    border: none;
+    background: #f1f1f1;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 10px 10px 0 0;
+    transition: background 0.3s ease, transform 0.3s ease;
+    flex: 1;
+}
+
+.season-tabs button.active {
+    background: white;
+    border-bottom: 3px solid #08465e;
+}
+
+.season-tabs button:hover {
+    background: #ddd;
+}
+
+/* Контент и боковой выбор вида рыбы */
+.content-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+.fish-tabs {
+    display: flex;
+    flex-direction: column;
+    margin-top: 3%;
+    width: 100px;
+}
+
+.fish-tabs button {
+    padding: 10px 20px;
+    border: none;
+    background: #f1f1f1;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 10px 0 0 10px;
+    text-align: left;
+    transition: background 0.3s ease, transform 0.3s ease;
+    word-wrap: break-word; /* Перенос длинных слов */
+    white-space: normal; /* Разрешает перенос строк */
+}
+
+.fish-tabs button.active {
+    background: white;
+    transform: translateX(2px);
+    border-right: 3px solid #08465e;
+}
+
+.fish-tabs button:hover {
+    background: #ddd;
+}
+
+/* Таблица */
+.trophies-table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+}
+
+.trophies-table thead tr {
+    background: #08465e;
+    width: 100%;
+}
+
+.trophies-table th,
+.trophies-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    word-wrap: break-word;
+}
+
+.trophies-table th {
+    background: #08465e;
+    color: white;
+    font-weight: bold;
+}
+
+.trophies-table tbody tr {
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.trophies-table tbody tr:hover {
+    background: #f1f1f1;
+}
+
+.trophies-table tbody tr.expanded {
+    background: #f9f9f9;
+}
+
+/* Фотографии */
+.fisher-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Ячейка с трофейным фото */
+.trophy-photo-cell {
+    padding: 0 !important;
+    display: none; /* Скрыта по умолчанию */
+
+
+}
+
+/* Блок с фото трофея */
+
+
+.trophy-photo img {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 10px;
+    display: block;
+    margin: 10px auto;
+}
+
+.trophies-table th:first-child,
+.trophies-table td:first-child {
+    white-space: nowrap;
+    
+}
+
+
+/* Правило для раскрытой строки */
+.trophies-table tbody tr.expanded .trophy-photo-cell {
+    display: table-cell;
+
+}
+
+/* Правило для плавного раскрытия фото */
+.trophies-table tbody tr.expanded .trophy-photo {
+    max-height: 500px;
+    opacity: 1;
+}
+
+
+
+/* Стили для дополнительного ряда, который содержит фото */
+.details-row {
+    animation: fadeIn 0.5s ease;
+  }
+  
+  .details-row td {
+    background: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  /* Если используете блок для фото, можно добавить плавное раскрытие фото */
+  .trophy-photo {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.5s ease;
+    opacity: 0;
+  }
+  
+  .details-row .trophy-photo {
+    max-height: 500px;
+    opacity: 1;
+  }
+
+
+
+

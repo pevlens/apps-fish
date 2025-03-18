@@ -1,0 +1,158 @@
+{% extends 'base1.html' %}
+{% load static %}
+{% block extra_css %}     
+<link rel="stylesheet" href="{% static 'css/create_cacth.css' %}">  
+{% endblock %}
+{% block content %}
+<h1>Создать уловы</h1>
+{% if error %}
+  <p style="color: red; text-align: center;">{{ error }}</p>
+{% endif %}
+<div class="container">
+
+
+
+  {%if hash_catch %}
+
+  <div class="sidebar">
+    <h2>Фотографии уловов с  базы, Всех Пользователей по hash </h2>
+    <!-- Галерея фотографий -->
+    <div class="catch-photos">
+      {% for catch in hash_catch %}
+        <div class="catch-photo">
+          <img src="{{ catch.image.url }}" alt="#" title="#">
+        </div>
+        
+        <p><strong>Рыба:</strong> {{ catch.cacthtg.fish }} </p>
+        <p><strong>Чей Улов:</strong> {{ catch.cacthtg.user.username}} -  {{ catch.cacthtg.user.first_name }} {{ catch.cacthtg.user.last_name}}</p>
+        <p><strong>Дата Улова:</strong> {{ catch.cacthtg.created_at|date:"Y-m-d"}}</p>
+      {% empty %}
+        <p>Нет фотографий.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% else %}
+    <p>Нет фотографий..</p>
+  {% endif %}
+
+    <div class="sidebar">
+        <h2>Фотографии уловов</h2>
+        <!-- Форма фильтрации -->
+        <form method="get" id="filter-form">
+          <input type="text" name="fish_filter" placeholder="Фильтр по рыбе" value="{{ request.GET.fish_filter }}">
+          <button type="submit">Фильтровать</button>
+        </form>
+        <!-- Галерея фотографий -->
+        <div class="catch-photos">
+          {% for catch in catch_photos %}
+            <div class="catch-photo">
+              <img src="{{ catch.image.image.url }}" alt="{{ catch.fish_species }}" title="{{ catch.fish_species }}">
+            </div>
+            <p><strong>Дата Улова:</strong> {{ catch.date_catch }}</p>
+          {% empty %}
+            <p>Нет фотографий.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+
+
+
+
+  <!-- Сайдбар: Информация и галерея уловов -->
+  <div class="sidebar">
+    <h2>Информация из Tg об улове</h2>
+    <form method="post" action="">
+      {% csrf_token %}
+      <button type="submit" name="delete" value="delete" class="delete-button" onclick="return confirm('Вы уверены, что хотите удалить эту запись?');">
+        Удалить запись
+      </button>
+    </form>
+    
+    <p><strong>Пользователь:</strong> {{ catch_tg.user }}</p>
+    <p><strong>Описание:</strong> {{ catch_tg.about }}</p>
+    <p><strong>Приманка:</strong> {{ catch_tg.bait }}</p>
+    <p><strong>Сумарнный Вес:</strong> {{ catch_tg.weight}}</p>
+    <p><strong>Дата Улова:</strong> {{ catch_tg.created_at }}</p>
+    
+
+    {% for img in catch_tg.cacth_user_tg.all %}
+    {% if img.image %}
+    <a href="{{ img.image_url }}">
+      <img src="{{ img.image.url }}" alt="Фото улова"></a>
+    {% endif %}
+    {% empty %}
+    <p>Нет изображений.</p>
+    {% endfor %}
+
+    <!-- {% if catch_tg.image %}
+      <img src="{{ catch_tg.image.url }}" alt="Фото улова">
+    {% endif %} -->
+
+  </div>
+  <!-- Основной блок: Форма создания улова -->
+  <div class="main">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ formset.management_form }}
+      
+      <div id="form-container">
+        {% for form in formset %}
+          <div class="form-row">
+            {% for field in form %}
+              {% if field.name != "count" %}
+                <div class="form-field">
+                  {{ field.label_tag }} {{ field }}
+                </div>
+              {% endif %}
+            {% endfor %}
+            <div class="form-field">
+              <label for="{{ form.count.id_for_label }}">Количество:</label>
+              {{ form.count }}
+            </div>
+            <button type="button" class="remove-form">Удалить</button>
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="button" id="add-form">Добавить форму</button>
+      <button type="submit">Сохранить</button>
+    </form>
+  </div>
+</div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const formContainer = document.getElementById("form-container");
+        const addFormButton = document.getElementById("add-form");
+        const totalForms = document.querySelector("#id_form-TOTAL_FORMS");
+
+        addFormButton.addEventListener("click", function () {
+            const formCount = parseInt(totalForms.value);
+            const newForm = formContainer.children[formCount - 1].cloneNode(true);
+            
+            // Обновляем индексы в name и id
+            newForm.innerHTML = newForm.innerHTML.replace(/form-(\d+)-/g, `form-${formCount}-`);
+            
+            formContainer.appendChild(newForm);
+            totalForms.value = formCount + 1;
+
+            updateRemoveButtons();
+        });
+
+        function updateRemoveButtons() {
+            document.querySelectorAll(".remove-form").forEach(button => {
+                button.addEventListener("click", function () {
+                    if (document.querySelectorAll(".form-row").length > 1) {
+                        this.parentElement.remove();
+                        totalForms.value = document.querySelectorAll(".form-row").length;
+                    }
+                });
+            });
+        }
+
+        updateRemoveButtons(); // Вызываем для уже существующих кнопок
+    });
+  </script>
+{% endblock %}
+

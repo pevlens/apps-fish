@@ -1,0 +1,150 @@
+{% extends 'base1.html' %}
+{%load static%}
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Создание профиля для {{ user_tg.first_name }}</h1>
+    
+
+    <div class="profile-wrapper">
+      
+    <!-- Информация из UserTg -->
+    <div class="tg-info">
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Данные из Telegram</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <img src="{% if user_tg.image %}{{ user_tg.image.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" 
+                         class="img-fluid rounded-circle" 
+                         alt="Аватар Telegram"
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                </div>
+                <div class="col-md-9">
+                    <dl class="row">
+                        <dt class="col-sm-3">ID:</dt>
+                        <dd class="col-sm-9">{{ user_tg.userid }}</dd>
+                        
+                        <dt class="col-sm-3">Username:</dt>
+                        <dd class="col-sm-9">{{ user_tg.username|default:"не указан" }}</dd>
+
+                        <dt class="col-sm-3">Имя:</dt>
+                        <dd class="col-sm-9">{{ user_tg.first_name|default:"не указан" }}</dd>
+                       
+                       
+                        <dt class="col-sm-3">Фамилия:</dt>
+                        <dd class="col-sm-9">{{  user_tg.last_name|default:"не указан" }}</dd>
+    
+
+                        <dt class="col-sm-3">Телефон:</dt>
+                        <dd class="col-sm-9">{{ user_tg.phone_number|default:"не указан" }}</dd>
+
+                        <dt class="col-sm-3">Кличка:</dt>
+                        <dd class="col-sm-9">{{ user_tg.alias|default:"не указан" }}</dd>
+
+                        <dt class="col-sm-3">Дата рождения:</dt>
+                        {% if user_tg.birth_date %}
+                        <dd class="col-sm-9">{{ user_tg.birth_date|date:"d.m.Y"|default:"не указан" }}</dd>
+                        {% else %}
+                            <dd class="col-sm-9">"не указан"</dd>
+                        {% endif %}
+
+
+                        <dt class="col-sm-3">Информация об рыбалове:</dt>
+                        <dd class="col-sm-9">{{ user_tg.bio|default:"не указан" }}</dd>
+
+
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="profile-form">
+    <!-- Форма создания профиля -->
+    <form method="post" enctype="multipart/form-data" class="border p-4 rounded bg-light">
+        {% csrf_token %}
+        
+        <h4 class="mb-3 border-bottom pb-2">Основные данные</h4>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label class="form-label">Имя</label>
+                {{ user_form.first_name }}
+
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">Фамилия</label>
+                {{ user_form.last_name }}
+
+            </div>
+            
+            <div class="col-12">
+                <label class="form-label">Email</label>
+                {{ user_form.email }}
+            </div>
+        </div>
+
+        <h4 class="mb-3 border-bottom pb-2">Данные профиля</h4>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label class="form-label">Кличка</label>
+                {{ profile_form.alias }}
+             
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">Дата рождения</label>
+                {{ profile_form.birth_date }}
+              
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">Основная снасть</label>
+                {{ profile_form.gear_main }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">Метод ловли</label>
+                {{ profile_form.metod_catch }}
+            </div>
+            
+            <div class="col-12">
+                <label class="form-label">Аватар профиля</label>
+                {{ profile_form.avatar }}
+                <div class="form-text">
+                    Текущий аватар из Telegram будет использован, если не выбран новый
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <label class="form-label">Биография</label>
+                {{ profile_form.bio }}
+              
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="bi bi-person-check me-2"></i>Создать профиль
+            </button>
+        </div>
+    </form>
+    </div>
+
+</div>
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
+    }
+    textarea {
+        min-height: 100px;
+    }
+</style>
+{% endblock %}

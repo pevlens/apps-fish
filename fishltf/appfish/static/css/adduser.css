@@ -1,0 +1,21 @@
+
+.adduser {
+    background-color: #ffffff;
+    width: 60%;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  .adduser a {
+    color: #1a0dab;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .adduser a:hover {
+    text-decoration: underline;
+  }
+  p {
+    line-height: 1.6;
+  }

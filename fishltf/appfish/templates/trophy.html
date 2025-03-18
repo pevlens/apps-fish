@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Профиль {{ profile.alias }}{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/trophy.css' %}"> <!-- Подключаем profile.css -->
+<script src="{% static 'js/trophy.js' %}" defer></script>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+    <h1>Трофеи</h1>
+
+    <!-- Вкладки сезонов -->
+    <div class="season-tabs">
+        <button data-season="all" class="{% if active_season == 'all' %}active{% endif %}">Все сезоны</button>
+        {% for year in years %}
+        <button data-season="{{ year|date:'Y' }}" class="{% if active_season|add:'' == year|date:'Y' %}active{% endif %}">
+            {{ year|date:"Y" }}
+        </button>
+        {% endfor %}
+    </div>
+    
+    <div class="content-wrapper">
+        <!-- Боковой выбор вида рыбы -->
+        <div class="fish-tabs">
+            {% for fish in all_fish %}
+            <button 
+                data-fish="{{ fish.name }}" 
+                class="{% if selected_fish and selected_fish.id == fish.id %}active{% endif %}">
+                {{ fish.name }}
+            </button>
+            {% endfor %}
+        </div>
+
+        <!-- Таблица трофеев -->
+        <table class="trophies-table">
+            <thead>
+                <tr>
+
+                    <th>Имя рыбака</th>
+                    <th>Вес (кг)</th>
+                    <th>Место</th>
+                    <th>Дата поимки</th>
+                    <th>Локация</th>
+                    <th>Приманка</th>
+                    <th>Метод ловли</th>
+
+                </tr>
+            </thead>
+            <tbody>
+
+
+
+                {% for item in catches %}
+                {% with catch=item.catch %}
+                <tr data-season="{{ catch.date_catch|date:'Y' }}" data-fish="{{ catch.fish_species.name }}">
+                    <td>
+                        <a href="{% url 'profile_detail' catch.user.profile.slug %}">
+                            <img src="{{ catch.user.profile.avatar.url }}" alt="{{ catch.user.get_full_name }}" class="fisher-photo"></a>
+                        {{ catch.user.get_full_name }}
+                    </td>
+                    <td>{{ catch.weight|floatformat:2|div:1000 }}</td>
+                    <td>{{ item.rank }}</td>
+                    <td class="trophy-photo-cell">
+                        <div class="trophy-photo">
+                            <img src="{{ catch.image.image.url }}" alt="Трофей">
+                        </div>
+                    </td>
+                    <td>{{ catch.date_catch|date:"d.m.Y" }}</td>
+                    <td>
+                        {% if catch.location_name %}
+                            {{ catch.location_name.name }}
+                        {% else %}
+                            Нет данных
+                        {% endif %}
+                    </td>
+                    <td>{{ catch.bait }}</td>
+                    <td>{{ catch.about }}</td>
+                </tr>
+                {% endwith %}
+                {% empty %}
+                <tr>
+                    <td colspan="7">Нет данных для выбранного сезона</td>
+                </tr>
+                {% endfor %}
+
+                    
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+
+

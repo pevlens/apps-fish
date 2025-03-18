@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/adduser.css' %}"> <!-- Подключаем profile.css -->
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="adduser">
+    <p>Чтобы стать участником Лиги, достаточно выполнить всего два простых шага:</p>
+    <p><strong>1.</strong> <a href="https://t.me/registrations_fishman_psn_bot" target="_blank">  
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" width="24" height="24" class="telegram-icon">
+        Зарегистрируйтесь в Telegram-боте </a>
+    </p>
+    <p><strong>2.</strong> <a href="https://t.me/fisherman_league" target="_blank"> 
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" width="24" height="24" class="telegram-icon">
+        Подпишитесь на наш канал Telegram fisherman_league
+        </a></p>
+    <p>На канале публикуются уловы участников, так что делитесь своими достижениями и вдохновляйтесь успехами других рыболовов!</p>
+</div>
+</div>
+
+{%endblock%}

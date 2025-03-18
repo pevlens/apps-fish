@@ -1,0 +1,14 @@
+{% extends "base1.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-danger">
+        <h4 class="alert-heading">Доступ запрещен!</h4>
+        <p>Только администраторы имеют доступ к этой странице.</p>
+        <hr>
+        <p class="mb-0">
+            <a href="{% url 'login' %}" class="alert-link">Попробовать войти снова</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

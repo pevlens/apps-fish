@@ -1,0 +1,50 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.container {
+    max-width: 800px;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+img.rounded-circle {
+    border: 3px solid #ddd;
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn-lg {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+}
+/* Контейнер для двух блоков: tg информация слева, форма справа */
+.profile-wrapper {
+    display: flex;
+    flex-wrap: wrap;       /* для адаптивности на узких экранах */
+    gap: 20px;             /* отступ между блоками */
+}
+
+/* Задаём одинаковую ширину для обоих блоков */
+.tg-info,
+.profile-form {
+    flex: 1 1 45%;         /* блоки занимают примерно 45% доступного пространства */
+    color: rgb(0, 0, 0);            /* делаем текст красным */
+}
+
+/* При необходимости можно добавить дополнительные стили для адаптивности */
+@media (max-width: 768px) {
+    .profile-wrapper {
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,636 @@
+/* Общие стили */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url('../images/fon.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #333;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: -1;
+}
+
+/* Навигация */
+nav {
+    display: flex;
+    justify-content: center;
+    background-color: #08465e;
+    padding: 10px 0;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* Основные секции */
+.section {
+    margin-bottom: 30px;
+}
+
+.section h2 {
+    cursor: pointer;
+    border-bottom: 2px solid #08465e;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    color: #9fd41a;
+}
+
+/* Кнопки вкладок */
+.tab-buttons {
+    display: flex;
+    border-bottom: 2px solid #1b93c6;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #39ff14;
+    transition: background 0.3s, color 0.3s;
+}
+
+.tab-button.active,
+.tab-button:hover {
+    background: #08465e;
+    color: white;
+}
+
+/* Контент вкладок */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Банер */
+
+.top-banner-right {
+    width: 100%; /* Ширина на всю доступную область */
+    height: 300px; /* Высота баннера */
+    position: relative;
+    overflow: hidden;
+    background-image: url('../images/fishers.jpg'); /* Дефолтное изображение */
+    background-size: cover; /* Изображение заполняет весь блок */
+    background-position: center; /* Центрируем изображение */
+    border-radius: 10px; /* Закругленные углы */
+    transition: background-image 1s ease-in-out; /* Плавная смена фона */
+    margin-bottom: 20px; /* Отступ снизу */
+}
+
+.top-banner-right::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный слой */
+    border-radius: 10px; /* Закругленные углы */
+    z-index: 1; /* Затемнение поверх фона, но ниже текста */
+}
+
+/* Текст внутри блока */
+.top-banner-right .content {
+    position: absolute;
+    top: 10%; /* Центрируем по вертикали */
+    left: 50%; /* Центрируем по горизонтали */
+    transform: translate(-50%, -50%); /* Точное центрирование */
+    text-align: center;
+    color: white;
+    z-index: 2;
+    white-space: nowrap; /* Запрещаем перенос текста на новую строку */
+}
+
+.top-banner-right .content h1 {
+    
+    font-size: clamp(1rem, 2.5vw, 2.5rem); 
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Тень для текста */
+    margin: 0; /* Убираем отступы */
+    padding: 0; /* Убираем отступы */
+    display: inline-block; /* Текст занимает только необходимую ширину */
+    max-width: 100%; /* Ограничиваем ширину текста */
+    overflow: hidden; /* Скрываем текст, если он выходит за пределы */
+    text-overflow: ellipsis; /* Добавляем многоточие, если текст не помещается */
+}
+
+.top-banner-right .content-about {
+    position: absolute;
+    text-align: start;
+    color: white;
+    z-index: 2;
+    display: block;
+    top: 50%;
+    margin-top: 30px;
+    margin-left: 5px;
+    
+}
+
+.top-banner-right .content-about h3{
+
+    font-family: 'Montserrat', sans-serif; /* или другой шрифт по вкусу */
+    font-size: clamp(0.5rem, 1.5vw, 1.2rem);             /* размер шрифта */
+    font-weight: 400;              /* нормальный вес */
+    color: #ffffff;                   /* тёмно-серый цвет для хорошей читаемости */
+    line-height: 1.2;              /* межстрочный интервал */
+    text-align: left;            /* можно выровнять по центру, если подходит */
+    margin: 10px;                  /* отступы вокруг текста */
+    padding: 5px;                 /* внутренние отступы для дополнительного пространства */
+ 
+    border-radius: 8px;            /* скруглённые углы для мягкого вида */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* лёгкая тень для глубины */
+}
+
+
+
+/* Список рыбаков */
+.fishermen-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.fisherman-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.fisherman {
+    width: 200px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fisherman:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 3px #39ff14;
+}
+
+.fisherman-photo {
+    width: 100%;
+    height: 170px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f4f4f4;
+    overflow: hidden;
+}
+
+.fisherman-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 30%;
+    border-radius: 10px 10px 0 0;
+}
+
+.fisherman-info {
+    padding: 10px;
+    background: white;
+    border-top: 1px solid #ddd;
+}
+
+.fisherman-info .name {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.fisherman-info .pseudo {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    margin-bottom: 5px;
+    color: #1d1e1d;
+}
+
+.fisherman-info .rating {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    color: #777;
+}
+
+/* Лента и таблицы */
+.feed, .table-container {
+    background: #f4f4f4;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  
+}
+
+.feed-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.feed-item img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-right: 15px;
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.feed-item .actions button {
+    background: #08465e;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.feed-item .actions button:hover {
+    background: #08465e;
+}
+
+/* Таблицы */
+/* Стили для таблиц */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Горизонтальная прокрутка, если таблица шире экрана */
+    margin-bottom: 20px; /* Отступ снизу */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #08465e;
+    color: white;
+    font-weight: bold;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Стили для фотографий участников в таблице */
+.participant {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Расстояние между фото и именем */
+}
+
+.participant img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Подвал */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 15px;
+    background-color: #08465e;
+    color: white;
+}
+
+/* Контейнеры */
+.container {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.left-side {
+    width: 17%;
+    margin-bottom: 30px;
+}
+
+.right-side {
+    width: 82%;
+    margin-bottom: 30px;
+}
+
+
+/* Блок лучшего рыбака */
+.best-fisher-background {
+    height: 200px;
+    border-radius: 10px 10px 0 0;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.best-fisher-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+}
+
+.best-fisher-background .trophy-icon {
+    width: 40px;
+    height: 40px;
+    background-color: #28be11;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
+
+.trophy-icon i {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 800;
+    content: "\e561";
+}
+
+.best-fisher-background h4 {
+    text-align: center;
+    position: absolute;
+    bottom: 1px;
+    left: 10px;
+    width: 75px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30%;
+    background-color: #1b93c6;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    font-size: 20px;
+}
+
+/* Левый сайдбар */
+.left-side-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.left-side-item:first-child {
+    height: 400px;
+}
+
+.left-side-item .best-fisher-background {
+    height: 50%;
+    width: 100%;
+}
+
+.left-side-item .best-fisher-text {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    max-height: 40%;
+    background: white;
+    border-radius: 0 0 10px 10px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    line-height: 5px;
+}
+
+.left-side-item:first-child .best-fisher-text {
+    display: block;
+    height: 40%;
+    background: white;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    overflow: hidden;
+    text-align: left;
+    line-height: 1;
+}
+
+.left-side-item:first-child .best-fisher-text strong,
+.left-side-item:first-child .best-fisher-text p {
+    margin: 0;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    font-size: 18px;
+    color: #333;
+}
+
+.left-side-item:first-child .best-fisher-text strong {
+    font-weight: bold;
+    margin-bottom: 0px;
+}
+
+.left-side-item:first-child .best-fisher-text p {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(0.5rem, 1vw, 1.5rem);
+    margin-top: 2px;
+    
+}
+
+.left-side-item:first-child .best-fisher-text p:first-of-type  {
+        font-weight: bold;
+}
+
+.best-table-fisher-background h2 {
+    border-bottom: 2px solid #1b93c6; /* Линия под заголовком */
+    padding-bottom: 10px; /* Отступ снизу */
+    margin-bottom: 10px; /* Отступ снизу */
+    color: #2aff09; /* Цвет заголовка */
+    font-size: 24px;
+}
+
+
+.best-fisher-text h2 {
+    font-size: 20px;
+    color: #28be11;
+}
+
+.best-fisher-text strong {
+    font-size: 20px;
+    color: #28be11;
+}
+
+.best-fisher-text p {
+    font-size: 20px;
+    color: #28be11;
+}
+
+.best-table-fisher-text > :nth-child(2) {
+    border-radius: 0 0 10px 10px; /* Закругляем только нижние углы */
+}
+
+/* Таблица текущего сезона */
+.season-table {
+    width: 100%;
+    margin-top: 0;
+    overflow-x: auto;
+    
+}
+
+
+.season-table table {
+    margin-top: 0;
+    border-radius: 0 0 10px 10px;
+
+}
+
+
+
+.season-table th, .season-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.season-table th {
+    background-color: #08465e;
+    color: white;
+    font-weight: bold;
+
+}
+
+.season-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.season-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.season-table td img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0;
+
+}
+.season-table td {
+    font-size: 13px;
+    padding: 10px; /* Уменьшаем отступы */
+
+}
+
+.season-table td img:hover {
+    transform: scale(1.5);
+}
+
+/* Стили для блока "TOП-5" */
+.top-5-header {
+    background: white; /* Белый фон */
+    padding: 10px; /* Отступы */
+    border-radius: 10px 10px 0 0; /* Закругляем верхние углы */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    margin-bottom: 0; /* Убираем отступ снизу */
+    font-size: 16px; /* Размер текста */
+    font-weight: bold; /* Жирный текст */
+    color: #08465e; /* Цвет текста */
+    margin-bottom: 0;
+}
+/* Анимации */
+@keyframes borderAnimation {
+    0% {
+        border-width: 2px;
+        border-color: transparent;
+    }
+    25% {
+        border-color: #39ff14 transparent transparent transparent;
+    }
+    50% {
+        border-color: #39ff14 #39ff14 transparent transparent;
+    }
+    75% {
+        border-color: #39ff14 #39ff14 #39ff14 transparent;
+    }
+    100% {
+        border-color: #39ff14;
+    }
+}
+
+@keyframes floatText {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+
+
+
+
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-description {
+        margin-top: 20px;
+        height: auto;
+    }
+
+    .stats-grid, .achievements-grid, .trophies-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 колонки на мобильных */
+    }
+
+    .tabs {
+        flex-direction: column;
+    }
+
+    .tab-button {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid, .achievements-grid, .trophies-grid {
+        grid-template-columns: 1fr; /* 1 колонка на очень маленьких экранах */
+    }
+}

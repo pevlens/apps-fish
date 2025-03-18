@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+
+{% block title %}Профиль {{ profile.alias }}{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}"> <!-- Подключаем profile.css -->
+<script src="{% static 'js/profile.js' %}" defer></script>
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="container">
+    <!-- Шапка профиля -->
+    <div class="profile-header">
+        <!-- Фото и имя -->
+        <div class="profile-photo">
+            <img src="{{ profile.avatar.url}}" alt="Фото рыбака">
+        </div>
+        <div class="profile-info">
+            <h1>{{profile.user.get_full_name}}</h1>
+            <p class="pseudo">Псевдоним: "{{profile.alias}}"</p>
+            <p class="rating">{{ profile.get_age }} лет</p>
+            <p class="rating">Рейтинг: {{user_season_stats.total_points|default:0}}</p>
+            <p class="rating-number">место в сезоне: {{user_season_stats.place}}</p>
+            <p class="main-snast">{{profile.gear_main}}</p>
+            <p class="main-metod">Основной медот ловли: {{profile.metod_catch}}</p>
+
+
+          
+        </div>
+        <!-- Описание рыбака (справа) -->
+        <div class="profile-description">
+            <h3>Об рыболове</h3>
+            <p>
+                {{profile.bio}}
+            </p>
+        </div>
+    </div>
+
+<!-- Вкладки для статистики и достижений -->
+<div class="tabs">
+<button class="tab-button active" onclick="showTab('current-season')">Текущий сезон</button>
+<button class="tab-button" onclick="showTab('all-seasons')">Все сезоны</button>
+</div>
+
+<!-- Статистика и достижения -->
+<div id="current-season" class="tab-content active profile-container">
+<h2>Статистика</h2>
+<div class="stats-grid">
+    <div class="stat-item"><span class="stat-value">{{user_season_stats.total_catches}}</span><span class="stat-label">Поймано (шт.)</span></div>
+    <div class="stat-item"><span class="stat-value">{{user_season_stats.total_weight|default:0|div:1000}}</span><span class="stat-label">Вес (кг.)</span></div>
+    <div class="stat-item"><span class="stat-value">{{user_season_stats.total_fishing_days}}</span><span class="stat-label">Рыбалок</span></div>
+    <div class="stat-item"><span class="stat-value">{{user_season_stats.total_points|default:0}}</span><span class="stat-label">Баллы</span></div>
+</div>
+<hr>
+<h2>Достижения</h2>
+<div class="achievements-grid">
+    <div class="achievement-item"><i class="icon-background-crocodile"></i><p>Трофейный улов</p>
+    <div  class="achievement-item-list">
+        {% for species, data in biggest_fish_season.items %}
+        {% if session.total_weight > 999 %}
+        <p class="achievement-item-text" data-info="Место среди всех: {{ data.rank }}">{{ species }} {{data.max_weight|floatformat:2|div:1000}} кг.</p>
+        {% else %}
+        <p class="achievement-item-text" data-info="Место среди всех: {{ data.rank }}">{{ species }} {{data.max_weight}} г.</p>
+        {% endif %}
+        {%endfor%}
+        </div>
+    </div>
+    <div class="achievement-item"><i class="fas fa-fish"></i><p>Рекордный вес</p>
+    
+        <div  class="achievement-item-list"> 
+            {% for session in top_sessions.current.top_by_weight %}
+            {% if session.total_weight > 999 %}
+            <p class="achievement-item-text" data-info="{{ session.fish_details }}">{{ session.total_weight|floatformat:2|div:1000 }} кг. {{ session.date_catch|date:"d.m.Y" }} </p>
+            {% else %}
+            <p class="achievement-item-text" data-info="{{ session.fish_details }}">{{ session.total_weight }} г. {{ session.date_catch|date:"d.m.Y" }} </p>
+            {% endif %}
+            {% empty %}
+            <p>Нет данных по текущему сезону</p>
+            {% endfor %}
+        </div>
+
+    </div>
+    <div class="achievement-item"><i class="fas fa-fish"></i><p>Рекордное количество</p>
+    
+        <div  class="achievement-item-list"> 
+            {% for session in top_sessions.current.top_by_count %}
+            <p class="achievement-item-text" data-info="{{ session.fish_details }}">{{ session.catch_count }} шт. {{ session.date_catch|date:"d.m.Y" }} </p>
+            {% empty %}
+            <p>Нет данных по текущему сезону</p>
+            {% endfor %}
+        </div>
+
+    </div>
+    <div class="achievement-item"><i class="fa-solid fa-ranking-star"></i><p>Место в сезоне</p>
+    
+         {% if user_season_stats.place   %}
+            <h3>{{user_season_stats.place }}</h3>
+        {%else%}
+        <h4>Нт рыбалок в сезоне</h4>
+        {%endif%}
+    </div>
+</div>
+</div>
+
+<div id="all-seasons" class="tab-content profile-container">
+<h2>Статистика</h2>
+<div class="stats-grid">
+    <div class="stat-item"><span class="stat-value">{{user_all_time_stats.total_catches}}</span><span class="stat-label">Поймано (шт.)</span></div>
+    <div class="stat-item"><span class="stat-value">{{user_all_time_stats.total_weight|default:0|div:1000}}</span><span class="stat-label">Вес (кг.)</span></div>
+    <div class="stat-item"><span class="stat-value">{{user_all_time_stats.total_fishing_days}}</span><span class="stat-label">Рыбалок</span></div>
+
+    {% for rank, rating in rating %}
+    {% if rank.username == profile.user.username %}
+    <div class="stat-item"><span class="stat-value">{{rating}}</span><span class="stat-label">Рейтинг</span></div>
+    {%endif%}
+    {% endfor %}
+</div>
+<hr>
+<h2>Достижения</h2>
+<div class="achievements-grid">
+    <div class="achievement-item"><i class="icon-background-crocodile"></i><p>Трофейный улов</p>
+        <div  class="achievement-item-list">
+          
+            {% for species, data in biggest_fish_all_time.items %}
+            {% if data.max_weight > 999 %}
+            <p class="achievement-item-text" data-info="Место среди всех: {{ data.rank }}">{{ species }} {{data.max_weight|floatformat:2|div:1000}} кг.</p>
+            {% else %}
+            <p class="achievement-item-text" data-info="Место среди всех: {{ data.rank }}">{{ species }} {{data.max_weight}} г.</p>
+            {% endif %}
+            {%endfor%}
+            
+            </div>
+    </div>
+    <div class="achievement-item"><i class="fas fa-fish"></i><p>Рекордный вес</p>
+    
+        <div  class="achievement-item-list"> 
+            {% for session in top_sessions.all_time.top_by_weight %}
+            {% if session.total_weight > 999 %}
+            <p class="achievement-item-text" data-info="{{ session.fish_details }}">{{ session.total_weight|floatformat:2|div:1000 }} кг. {{ session.date_catch|date:"d.m.Y" }} </p>
+            {% else %}
+            <p class="achievement-item-text" data-info="{{ session.fish_details }}">{{ session.total_weight }} г. {{ session.date_catch|date:"d.m.Y" }} </p>
+            {% endif %}
+            {% empty %}
+            <p>Нет данных по текущему сезону</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="achievement-item"><i class="fas fa-fish"></i><p>Рекордное количество</p>
+        <div  class="achievement-item-list"> 
+            <div  class="achievement-item-list"> 
+                {% for session in top_sessions.all_time.top_by_count %}
+                <p class="achievement-item-text" data-info="{{ session.fish_details }}">{{ session.catch_count }} шт. {{ session.date_catch|date:"d.m.Y" }} </p>
+                {% empty %}
+                <p>Нет данных по текущему сезону</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="achievement-item"><i class="fas fa-trophy"></i><p>Чемпион в сезонах</p>
+        <div  class="achievement-item-list">
+
+            {% for season in stat.season_history %}
+
+            <p class="achievement-item-text" data-info="">  Сезон {{ season.year }}: {{ season.place }} место</p>
+            {% empty %}
+            <p class="achievement-item-text" data-info="нет рыбалок">Нет данных</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+</div>
+
+    <!-- Личные трофеи -->
+    <div class="personal-trophies">
+        <h2>Личные трофеи</h2>
+        <div class="trophies-grid">
+
+            {% for species, data in biggest_fish_all_time.items %}
+            <div class="trophy-item">
+                <a href="{{ data.image_url }}">
+                <img src="{{ data.image_url }}" alt="{{ species }}"></a>
+                {% if data.max_weight > 999 %}
+                <p>{{ species }} {{data.max_weight|floatformat:2|div:1000}}кг.</p>
+                {% else %}
+                <p>{{ species }} {{data.max_weight}}г.</p>
+                {% endif %}
+            </div>
+            {% endfor %}            
+        </div>
+    </div>
+
+
+</div>
+
+
+
+
+{% endblock %}

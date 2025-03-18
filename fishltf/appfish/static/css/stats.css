@@ -1,0 +1,215 @@
+/* Общие стили */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url('../images/fon.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #333;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: -1;
+}
+
+/* Контейнеры */
+.container {
+    display: block;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.total-caches-count-weight {
+    display: flex;
+    justify-content: center; /* Выравниваем по центру */
+    gap: 20px; /* Расстояние между таблицами */
+    flex-wrap: wrap; /* Чтобы таблицы переносились, если экран узкий */
+}
+
+.total-caches-count,
+.total-caches-weight {
+    flex: 1; /* Равномерное распределение ширины */
+    min-width: 300px; /* Минимальная ширина, чтобы таблицы не становились слишком узкими */
+    text-align: center; /* Выравнивание заголовков */
+}
+h1 {
+    text-align: center; /* Центрируем заголовок */
+    margin-bottom: 10px; /* Добавляем немного отступа вниз */
+    color: rgb(0, 57, 162);
+}
+h2 {
+    text-align: center; /* Центрируем заголовок */
+    margin-bottom: 10px; /* Добавляем немного отступа вниз */
+    color:azure;
+}
+h3 {
+   
+    color:azure;
+}
+
+p {
+    color:azure;
+}
+
+.season-tabs {
+    display: flex;
+    justify-content: center; /* Центрируем кнопки */
+    align-items: flex-end; /* Выравниваем их по нижнему краю */
+    gap: 5px; /* Расстояние между кнопками */
+    margin-bottom: 10px;
+    position: relative; /* Для черты снизу */
+    border-bottom: 3px solid #333; /* Черта под кнопками */
+}
+
+.season-tabs button {
+    padding: 10px 20px;
+    border: none;
+    background: #f1f1f1;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 10px 10px 0 0;
+    transition: background 0.3s ease, transform 0.2s ease;
+    flex: 1;
+}
+
+/* Стиль для активной кнопки */
+.season-tabs button.active {
+    background: #315983; /* Цвет фона активной кнопки */
+    color: white; /* Цвет текста */
+    font-weight: bold;
+    transform: translateY(-2px); /* Немного поднимаем кнопку */
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.2);
+
+}
+
+/* Эффект при наведении */
+.season-tabs button:hover {
+    background: #6c6c6c;
+}
+
+
+
+
+.fish-statistics-section {
+    display: flex;
+    align-items: flex-start; /* Выравниваем по верхнему краю */
+}
+
+.fish-buttons {
+    display: flex;
+    flex-direction: column; /* Кнопки в колонку */
+    gap: 0; /* Убираем промежутки между кнопками */
+}
+
+.fish-buttons button {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    background: #f1f1f1;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+    text-align: left;
+    width: 150px; /* Фиксированная ширина кнопок */
+    border-right: none; /* Убираем границу справа, чтобы соединить с таблицей */
+}
+
+.fish-buttons button:hover,
+.fish-buttons button.active {
+    background: #007bff;
+    color: white;
+}
+
+/* Контейнер для статистики */
+.fish-stat-containers {
+    display: flex;
+    flex-grow: 1; /* Занимает всю доступную ширину */
+}
+
+.fish-stat-tables {
+    display: flex;
+    gap: 20px; /* Расстояние между таблицами */
+    flex-wrap: wrap; /* Чтобы таблицы переносились, если экран узкий */
+    width: 100%;
+
+
+}
+
+.fish-stat-tables h4{
+    color: azure;
+}
+
+.fish-stat-tabl {
+    flex: 1; /* Равномерное распределение ширины */
+    min-width: 300px; /* Минимальная ширина, чтобы таблицы не становились слишком узкими */
+    text-align: center; /* Выравнивание заголовков */
+    margin-left: 10px;
+}
+
+.fish-stat {
+    display: flex; /* По умолчанию скрыты */
+    padding: 0; /* Убираем отступы */
+    flex: 1; /* Равномерное распределение ширины */
+    min-width: 300px; /* Минимальная ширина, чтобы таблицы не становились слишком узкими */
+    text-align: center; /* Выравнивание заголовков */
+    margin-left: 10px;
+}
+
+
+.fish-stat.active {
+    display: flex; /* Показываем активную статистику */
+}
+
+/* Выравнивание таблиц */
+.fish-stat-content {
+    display: flex;
+    align-items: flex-start; /* Выравнивание таблиц по верхнему краю */
+    gap: 20px; /* Расстояние между таблицами */
+}
+
+/* Одинаковая высота для обеих таблиц */
+.fish-stat-content table {
+    width: 100%;
+    border-collapse: collapse;
+    min-height: 200px; /* Минимальная высота, чтобы таблицы не прыгали */
+}
+
+
+.max-one-day {
+    display: flex;
+    gap: 20px; /* Расстояние между таблицами */
+    width: 100%;
+
+}
+
+.max-weith-one-day {
+    align-items: flex-start;
+    margin-bottom: 10%;
+    min-width: 50%; /* Минимальная ширина, чтобы таблицы не становились слишком узкими */
+    max-width: 50%;
+    text-align: center; /* Выравнивание заголовков */
+ 
+}
+
+.max-count-one-day {
+    align-items: flex-start;
+    margin-bottom: 10%;
+    min-width: 50%; /* Минимальная ширина, чтобы таблицы не становились слишком узкими */
+    max-width: 50%;
+    text-align: center; /* Выравнивание заголовков */
+
+}

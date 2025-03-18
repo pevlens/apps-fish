@@ -1,0 +1,268 @@
+<!-- templates/home.djinga -->
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+
+<div class="container">
+    <div class="left-side">
+        <div class="left-side-item">
+            <div class="best-fisher-background">
+                <img src="{{ stats.0.user.profile.avatar.url }}" alt="Лучший рыбак" class="best-fisher-image">
+                <div class="trophy-icon">
+                    <i class="fa-solid fa-ranking-star"></i>
+                </div>
+            </div>
+            <div class="best-fisher-text">
+                <strong>{{stats.0.user.get_full_name}}</strong>
+                <p>"{{stats.0.user.profile.alias}}"</p>
+                <p>Рейтинг: {{rating.0.1}}</p>
+                <p>Снасть: {{stats.0.user.profile.gear_main}}</p>
+                <p>Кол-во рыбалок: {{stats.0.total_fishing_days}}</p>
+                <p>Поймано:  {{stats.0.total_catches}} хв.</p>
+            </div>
+        </div>
+
+<!-- Блок Текущий сезон -->
+<div class="left-side-item">
+<div class="best-table-fisher-background">
+    <h2>Текущий сезон</h2>
+</div>
+<div class="best-table-fisher-text">
+    <div class="top-5-header">TOП-5</div> <!-- Добавляем блок "TOП-5" -->
+    <div class="season-table">
+        <table>
+            <colgroup>
+                <col style="width: 35%;"> <!-- Устанавливаем ширину для первого столбца -->
+                <col style="width: 80%;"> <!-- Устанавливаем ширину для второго столбца -->
+                <col style="width: 30%;">  <!-- Устанавливаем ширину для третьего столбца -->
+            </colgroup>
+            <thead>
+            </thead>
+            <tbody>
+                
+                {% for stat in stats|slice:":6" %}
+                <tr>
+                    
+                    <td><img src="{{ stat.user.profile.avatar.url }}" alt="{{ stat.user.get_full_name }}"></td>
+                    <td>{{ stat.user.get_full_name }}</td>
+                    <td>{{stat.total_points}}</td>
+                 
+                  
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+<!-- Блок Рейтинг рыболовов -->
+<div class="left-side-item">
+<div class="best-table-fisher-background">
+    <h2>Лучшие рыболовы</h2>
+</div>
+<div class="best-table-fisher-text">
+    <div class="season-table">
+        <table>
+            <colgroup>
+                <col style="width: 30%;"> <!-- Устанавливаем ширину для первого столбца -->
+                <col style="width: 80%;"> <!-- Устанавливаем ширину для второго столбца -->
+                <col style="width: 30%;">  <!-- Устанавливаем ширину для третьего столбца -->
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Фото</th>
+                    <th>Имя</th>
+                    <th title="Рейтинг">Рейт.</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for user, points in rating|slice:":6" %}
+
+                <tr>
+                    {% for profile in profiles%}
+                    {% if profile.user.username == user.username %}
+                    <td><img src="{{ profile.avatar.url }}" alt="{{ profile.user.get_full_name }}"></td>
+                    <td>{{ profile.user.get_full_name }}</td>
+                    <td>{{points}}</td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+</div>
+
+    <div class="right-side">
+        <div class="top-banner-right" id="banner">
+            <div class="content">
+                <h1>Лига Рыбаков Любителей</h1>
+             
+            </div>
+            <div class="content-about">
+                <h3>Арена настоящих рыболовных баталий, 
+                    где азарт соперничества и страсть к улову сливаются воедино! 
+                    Здесь каждый участник бросает вызов, сражаясь за звание лучшего рыбака. 
+                    От новичков до ветеранов — готовьтесь к настоящим рыболовным сражениям, 
+                    где каждый заброс может изменить всё. Присоединяйтесь и почувствуйте вкус победы!
+                </h3>
+            </div>
+        </div>
+        <div class="main-container">
+            <!-- Кнопки для переключения разделов -->
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('fishermen')">Рыбаки</button> <!-- Новая вкладка -->
+                <button class="tab-button" onclick="showTab('feed')">Лента</button>
+                <button class="tab-button" onclick="showTab('rating')">Рейтинг рыболовов</button>
+                <button class="tab-button" onclick="showTab('season')">Текущий сезон</button>
+
+            </div>
+    <!-- Вкладка "Рыбаки" -->
+
+   <div id="fishermen" class="tab-content active">
+    <div class="fishermen-list">
+        <!-- Карточка рыбака 1 -->
+        {% for profile in profiles %}
+        <a href="profile/{{profile.slug}}" class="fisherman-link">
+            <div class="fisherman">
+                <div class="fisherman-photo">
+                    {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="Рыбак">
+                    {% else %}
+                    <img src="{% static 'myapp/images/default_avatar.png' %}" alt="Нет аватара">
+                    {% endif %}
+                </div>
+                <div class="fisherman-info">
+                    {% for user, points in rating %}
+                    {% if user.username == profile.user.username %}
+                    <p class="name">{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+                    <p class="pseudo">Псевдоним: {{ profile.alias }}</p>
+                    <p class="rating">Рейтинг: {{points}}</p>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </a>
+
+        {% empty %}
+            <p>Нет профилей для отображения.</p>
+        {% endfor %}
+        
+        </div>
+    </div>
+
+            <!-- Контент для каждого раздела -->
+            <div id="feed" class="tab-content">
+                <div class="feed">
+                    {% for news in news %}
+                    <div class="feed-item">
+                        <img src="{{news.user.profile.avatar.url}}" alt="Участник">
+                        <div class="details">
+                            <strong>{{ news.user.get_full_name }}</strong>
+                            <p>Был на рыбалке {{news.date_catch}}</p>
+                            <p>Поймал {{news.fish_species.name}} на {{news.weight|div:1000}} кг. </p>
+                        </div>
+                    </div>
+                  {% endfor %}
+                </div>
+            </div>
+    
+            <div id="rating" class="tab-content">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Место</th>
+                                <th>Имя</th>
+                                <th>Кол-во Кубков</th>
+                                <th>Рейтинг</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for stat in stats %}
+                            
+                            <tr>
+                                <td>{{ stat.place }}</td>
+                                <td>
+                                    {% if stat.profile.avatar %}
+                                    <div class="participant">
+                                        <img src="{{ stat.profile.avatar.url }}" alt="Аватар">
+                                        <span>{{ stat.profile.user.first_name }} {{ stat.profile.user.last_name}}</span>
+                                    </div>
+
+                                    {% endif %}
+                                </td>
+                                <td>1</td>
+                                <td>{{ stat.total_points|default:0 }}</td>
+
+                            </tr>
+
+                            {% endfor %}
+
+ 
+
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    
+            <div id="season" class="tab-content">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Место</th>
+                                <th>Участник</th>
+                                <th>Поймано (шт.)</th>
+                                <th>Вес (кг.)</th>
+                                <th>Кол-во рыбалок</th>
+                                <th>Баллы</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+
+                            {% for stat in stats %}
+                            
+                            <tr>
+                                <td>{{ stat.place }}</td>
+                                <td>
+                                    {% if stat.profile.avatar %}
+                                    <div class="participant">
+                                        <img src="{{ stat.profile.avatar.url }}" alt="Аватар">
+                                        <span>{{ stat.profile.user.first_name }} {{ stat.profile.user.last_name}}</span>
+                                    </div>
+
+                                    {% endif %}
+                                </td>
+                                <td>{{ stat.total_catches }}</td>
+                                <td>{{ stat.total_weight|default:0|div:1000 }}</td>
+                                <td>{{ stat.total_fishing_days }}</td>
+                                <td>{{ stat.total_points|default:0 }}</td>
+
+                            </tr>
+
+                            {% endfor %}
+
+ 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+           
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Статистика{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/stats.css' %}"> <!-- Подключаем profile.css -->
+<script src="{% static 'js/stats.js' %}" defer></script>
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+  <h1>Статистика</h1>
+
+  <!-- Вкладки: "За всё время" и по каждому сезону -->
+  <div class="season-tabs">
+    <button data-season="all" class="{% if active_season == 'all' %}active{% endif %}">
+      За всё время
+    </button>
+    {% for season in seasons %}
+      <button data-season="{{ season|date:'Y' }}" class="{% if active_season == season|date:'Y' %}active{% endif %}">
+        {{ season|date:"Y" }}
+      </button>
+    {% endfor %}
+  </div>
+
+  <!-- Можно добавить JS для перенаправления при клике по вкладке, либо реализовать выбор через форму -->
+
+  <!-- 2. Таблица: общее количество выловленных рыб -->
+   <div class="total-caches-count-weight">
+    <div class="total-caches-count">
+  <h2>Общее количество выловленных рыб</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Рыбак</th>
+        <th>Количество уловов</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in total_fish_count %}
+      <tr>
+        <td>{{ item.user.get_full_name }}</td>
+        <td>{{ item.total_count }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="2">Нет данных</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="total-caches-weight">
+  <!-- 3. Таблица: общий вес выловленных рыб -->
+  <h2>Общий вес выловленных рыб (кг)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Рыбак</th>
+        <th>Вес (кг)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in total_weight %}
+      <tr>
+        <td>{{ item.user.get_full_name }}</td>
+        <td>{{ item.total_weight_kg|floatformat:2 }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="2">Нет данных</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+
+  <!-- 4. Статистика по видам рыб -->
+<div class="fish-stat-name">
+  <h2>Статистика по видам рыб</h2>
+
+  <div class="fish-statistics-section">
+    <!-- Кнопки для выбора вида рыб -->
+    <div class="fish-buttons">
+      {% for fish, data in fish_stats.items %}
+        <button data-fish="{{ fish.pk }}">{{ fish.name }}</button>
+      {% endfor %}
+    </div>
+
+
+    <!-- Контейнеры со статистикой для каждого вида рыб -->
+    <div class="fish-stat-containers">
+      {% for fish, data in fish_stats.items %}
+        <div class="fish-stat" data-fish="{{ fish.pk }}">
+          <div class="fish-stat-tables"> 
+          <div class="fish-stat-tabl"> 
+
+          <table>
+            <thead>
+              <tr>
+                <th>Рыбак</th>
+                <th>Количество уловов</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in data.by_count %}
+                <tr>
+                  <td>{{ item.user.get_full_name }}</td>
+                  <td>{{ item.count }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="2">Нет данных</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="fish-stat-tabl">
+
+          <table>
+            <thead>
+              <tr>
+                <th>Рыбак</th>
+                <th>Вес (кг)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in data.by_weight %}
+                <tr>
+                  <td>{{ item.user.get_full_name }}</td>
+                  <td>{{ item.total_weight_kg|floatformat:2 }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="2">Нет данных</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
+        </div>
+        
+          <div class="fish-stat-info">
+            <h3>{{ fish.name }}</h3>
+          <p>
+            Максимальный улов:
+            {% if data.max_weight %}
+              {{ data.max_weight }} г
+            {% else %}
+              Нет данных
+            {% endif %}
+          </p>
+          </div>
+      </div>
+
+
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+  <!-- 5. Таблица: сезонное ранжирование -->
+
+
+
+
+{% if active_season == 'all' %} 
+<h2>Общий Рейтинг Рыьаков</h2>
+
+{%else%}
+<h2>Набранные быллы в сезонне {{active_season }}</h2>
+{%endif%}
+<table>
+  <thead>
+    <tr>
+      <th>Место</th>
+      <th>Рыбак</th>
+      <th>Баллы</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if active_season == 'all' %}
+
+    {% for place , stat in ranking_table %}
+      <tr>
+        <td>{{ place }}</td>
+        <td>{{ stat.0.get_full_name }}</td>
+        <td>{{ stat.1|floatformat:0 }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="3">Нет данных</td>
+      </tr>
+    {% endfor %}
+    
+    {%else%}
+    {% for stat in ranking_table %}
+      <tr>
+        <td>{{ stat.place }}</td>
+        <td>{{ stat.user.get_full_name }}</td>
+        <td>{{ stat.total_points|floatformat:0 }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="3">Нет данных</td>
+      </tr>
+    {% endfor %}
+    {%endif%}
+  </tbody>
+</table>
+
+
+<div class="max-one-day">
+  <!-- 6. Таблица: максимум выловленных рыб за день -->
+<div class="max-count-one-day">
+  <h2> количество выловленных рыб за день</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Дата</th>
+        <th>Рыбак</th>
+        <th>Количество уловов</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in max_catches_day %}
+      <tr>
+        <td>{{ item.date_catch|date:"d.m.Y" }}</td>
+        <td>{{ item.user_obj.get_full_name }}</td>
+        <td>{{ item.count }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">Нет данных</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+  <!-- 7. Таблица: максимум выловленных рыб по весу за день -->
+ <div class="max-weith-one-day">
+  <h2> вес выловленных рыб за день</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Дата</th>
+        <th>Рыбак</th>
+        <th>Вес (кг)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in max_weight_day %}
+      <tr>
+        <td>{{ item.date_catch|date:"d.m.Y" }}</td>
+        <td>{{ item.user_obj.get_full_name }}</td>
+        <td>{{ item.total_weight_kg|floatformat:2 }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">Нет данных</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</div>
+
+
+
+
+</div>
+{% endblock %}

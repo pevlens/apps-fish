@@ -1,0 +1,16 @@
+{% extends 'base1.html' %}
+
+{% block content %}
+<h1>Неопубликованные уловы</h1>
+<ul>
+    {% for catch in catches %}
+    <li>
+        <a href="{% url 'create-catch' catch.id %}">
+            {{ catch.created_at|date }} - {{ catch.fish }}  Пользователь: {{catch.user.userid}} {{ catch.user.firs_name}} {{ catch.user.last_name}}
+        </a>
+    </li>
+    {% empty %}
+    <li>Нет необработанных уловов</li>
+    {% endfor %}
+</ul>
+{% endblock %}

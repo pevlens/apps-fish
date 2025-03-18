@@ -1,0 +1,22 @@
+# Исключаем Python кэш
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Виртуальное окружение
+env/
+venv/
+
+# Сборка и дистрибутивы
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# Git репозиторий
+.git
+.gitignore
+
+# Другие временные файлы
+*.log
