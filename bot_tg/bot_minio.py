@@ -2,6 +2,8 @@ from minio import Minio
 from minio.error import S3Error
 import os
 import io
+from dotenv import load_dotenv
+load_dotenv(os.getenv('VAULT_SECRETS_FILE', '.env'))
 # Настройки подключения
 minio_client = Minio(
     os.getenv('MINIO_STORAGE_ENDPOINT', 'admin'),  # Адрес MinIO-сервера
