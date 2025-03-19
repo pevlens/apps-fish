@@ -228,6 +228,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
     if update.message and update.message.photo:
         if update.message.media_group_id:
             # Обработка медиагруппы
+            logger.warning(f"Загрузка медиагруппы.")
             media_group_id = update.message.media_group_id
 
             # Инициализация группы, если ее нет
@@ -274,6 +275,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             return ConversationHandler.END
 
         else:
+            logger.warning(f" медиагруппа. не обнаружена идет загрузка одиночного фото")
             # Обработка одиночного фото
             photo_file = await update.message.photo[-1].get_file()
             #photo_path = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
