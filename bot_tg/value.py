@@ -8,11 +8,11 @@ TOKEN_TG_BOT = os.getenv('TOKEN_TG_BOT', 'default-key')
 #DATABASE_URL = os.getenv('DATABASE_URL', 'default-url')
 #TOKEN_TG_BOT = '7890053954:AAGyobNwIaYH0TRt0asZlmHiB2eN25oOczM'
 #DATABASE_URL = 'sqlite:////home/admin/exemple_job/back_for_yarik/fishltf/db.sqlite3'
-DB_USER = os.getenv('DB_USER', 'default-user')
-DB_PASSWORD = os.getenv('DB_PASSWORD', 'default-user')
-DB_HOST = os.getenv('DB_HOST', 'default-user')
-DB_PORT = os.getenv('DB_PORT', 'default-user')
-DB_NAME = os.getenv('DB_NAME', 'default-user')
+DB_USER = os.getenv('DATABASE_USER', 'default-user')
+DB_PASSWORD = os.getenv('DATABASE_PASSWORD', 'default-user')
+DB_HOST = os.getenv('DATABASE_HOST', 'default-user')
+DB_PORT = os.getenv('DATABASE_PORT', 'default-user')
+DB_NAME = os.getenv('DATABASE_NAME', 'default-user')
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 # Состояния для диалога регистрации
 #REGISTER_FIRST_NAME, REGISTER_LAST_NAME, REGISTER_PHONE, REGISTER_METOD_CATCH, REGISTER_GEAR_MAIN, REGISTER_BIO, REGISTER_ALIAS = range(7)
