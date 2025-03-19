@@ -24,7 +24,7 @@ RUN pip install --upgrade pip && \
 COPY . .
 
 # Собираем статические файлы (убедитесь, что настроен STATIC_ROOT в settings.py)
-RUN python manage.py collectstatic --noinput
+#RUN python manage.py collectstatic --noinput
 
 # Открываем порт (можно указать другой, если требуется)
 EXPOSE 8000
