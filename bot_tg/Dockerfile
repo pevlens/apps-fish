@@ -27,4 +27,4 @@ COPY . .
 #EXPOSE 8000
 
 # Запускаем приложение с помощью Gunicorn
-CMD ["python", "bot.by"]
+CMD ["python", "bot.py"]
