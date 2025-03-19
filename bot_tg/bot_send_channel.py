@@ -45,13 +45,15 @@ async def process_media_group(
 ):
     """Обработчик медиагруппы: сохраняет пост после сбора всех фото."""
     # Даем время на получение всех фото (2-5 сек)
-    await asyncio.sleep(5)
+    await asyncio.sleep(10)
 
     # Достаем группу из контекста
     media_group = context.user_data["media_groups"].get(media_group_id, {})
     if not media_group:
         return
 
+    # Логирование информации о группе
+    logger.info(f"Начало обработки медиагруппы {media_group_id}. Фото: {len(media_group['photos'])}")
     user = update.effective_user
     user_id = get_user_id_by_userid(user.id)
 
