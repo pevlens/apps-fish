@@ -232,6 +232,8 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             # Обработка медиагруппы
             logger.warning(f"Загрузка медиагруппы.")
             media_group_id = update.message.media_group_id
+            logger.info(f"Получено фото в медиагруппе {media_group_id}")
+
 
             # Инициализация группы, если ее нет
             context.user_data.setdefault("media_groups", {})
@@ -242,7 +244,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 }
 
             current_group = context.user_data["media_groups"][media_group_id]
-
+            logger.info(f"Текущее количество фото в группе: {len(current_group['photos'])}")
             # Скачивание фото
             photo_file = await update.message.photo[-1].get_file()
             file_bytes = await photo_file.download_as_bytearray()
