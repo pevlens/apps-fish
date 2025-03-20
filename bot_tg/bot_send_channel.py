@@ -45,7 +45,7 @@ async def process_media_group(
 ):
     """Обработчик медиагруппы: сохраняет пост после сбора всех фото."""
     # Даем время на получение всех фото (2-5 сек)
-    await asyncio.sleep(20)
+    await asyncio.sleep(5)
 
     # Достаем группу из контекста
     media_group = context.user_data["media_groups"].get(media_group_id, {})
@@ -247,40 +247,39 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             if media_group_id not in context.user_data["media_groups"]:
                 context.user_data["media_groups"][media_group_id] = {
                     "photos": [],
-                    'lock': asyncio.Lock(),  # Создаем новую блокировку
                     "task_created": False  # Флаг для отслеживания задачи
                 }
 
             current_group = context.user_data["media_groups"][media_group_id]
             # logger.info(f"Текущее количество фото в группе: {len(current_group['photos'])}")
             # Скачивание фото
-            async with current_group['lock']:
-                photo_file = await update.message.photo[-1].get_file()
-                file_bytes = await photo_file.download_as_bytearray()
+
+            photo_file = await update.message.photo[-1].get_file()
+            file_bytes = await photo_file.download_as_bytearray()
                 #photo_path = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
-                object_name = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
+            object_name = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
 
 
-                logger.debug(
+            logger.info(
                     f"\n■■■■■■■■■■■■■■■■■■■■■■■■■\n"
                     f"🖼 Обработка фото\n"
                     f"├ Media Group ID: {media_group_id}\n"
                     f"├ Текущих фото в группе: {len(current_group['photos'])}"
                 )
 
-                minio_path = await upload_to_minio(file_bytes, object_name)
+            minio_path = await upload_to_minio(file_bytes, object_name)
 
                 #await photo_file.download_to_drive(photo_path)
                 #image_hash = calculate_image_hash(photo_path)
-                if minio_path:
+            if minio_path:
                     # Вычисляем хеш из байтов без сохранения на диск
-                    image_hash = calculate_image_hash(file_bytes)
+                image_hash = calculate_image_hash(file_bytes)
 
                 # Добавляем фото в группу
-                current_group["photos"].append({"path": minio_path, "hash": image_hash})
+            current_group["photos"].append({"path": minio_path, "hash": image_hash})
                 
 
-                logger.info(
+            logger.info(
                     f"\n▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀\n"
                     f"✅ Фото добавлено в группу\n"
                     f"├ Media Group ID: {media_group_id}\n"
@@ -290,9 +289,9 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 )
 
                 # Создаем задачу только для первого фото в группе
-                if not current_group["task_created"]:
-                    current_group["task_created"] = True
-                    asyncio.create_task(
+            if not current_group["task_created"]:
+                current_group["task_created"] = True
+                asyncio.create_task(
                         process_media_group(
                             media_group_id, 
                             update, 
@@ -302,11 +301,12 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                             UserTgTable
                         )
                     )
-                    logger.info(f"🚀 Запущена обработка группы {media_group_id}")
+                
+                logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
             
-            return ConversationHandler.END
-
+            # return ConversationHandler.END
+            return
         else:
             logger.warning(f" медиагруппа. не обнаружена идет загрузка одиночного фото")
             # Обработка одиночного фото
