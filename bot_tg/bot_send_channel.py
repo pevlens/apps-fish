@@ -95,7 +95,7 @@ async def process_media_group(
         # Удаляем группу из контекста
         if media_group_id in context.user_data["media_groups"]:
             del context.user_data["media_groups"][media_group_id]
-        return ConversationHandler.END
+        return True
     # return ConversationHandler.END
 
 
@@ -289,9 +289,10 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 )
 
                 # Создаем задачу только для первого фото в группе
+            boolean=False
             if not current_group["task_created"]:
                 current_group["task_created"] = True
-                asyncio.create_task(
+                boolean = asyncio.create_task(
                         process_media_group(
                             media_group_id, 
                             update, 
@@ -304,9 +305,11 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 
                 logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
-            
+            if boolean:
+              return ConversationHandler.END  
             # return ConversationHandler.END
-            return
+            else:
+                return
         else:
             logger.warning(f" медиагруппа. не обнаружена идет загрузка одиночного фото")
             # Обработка одиночного фото
