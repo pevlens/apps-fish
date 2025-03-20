@@ -95,7 +95,7 @@ async def process_media_group(
         # Удаляем группу из контекста
         if media_group_id in context.user_data["media_groups"]:
             del context.user_data["media_groups"][media_group_id]
-
+        return ConversationHandler.END
     # return ConversationHandler.END
 
 
