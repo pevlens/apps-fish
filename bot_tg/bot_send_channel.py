@@ -24,7 +24,7 @@ from bot_hash import *
 from bot_minio import *
 # Настройка логирования
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG
 )
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ async def process_media_group(
 ):
     """Обработчик медиагруппы: сохраняет пост после сбора всех фото."""
     # Даем время на получение всех фото (2-5 сек)
-    await asyncio.sleep(10)
+    await asyncio.sleep(20)
 
     # Достаем группу из контекста
     media_group = context.user_data["media_groups"].get(media_group_id, {})
@@ -223,7 +223,8 @@ async def create_post_fish(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, CatchTgTable, UserTgTable, CatchTgImage) -> int:
     """Шаг 6: Загрузка фото и сохранение данных в базу данных."""
     user = update.effective_user
-
+    logger.info(f"Получено сообщение типа: {update.message.effective_attachment}")
+    logger.debug(f"Полное содержимое update: {update.to_dict()}")
 
 
 
@@ -234,7 +235,9 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             media_group_id = update.message.media_group_id
             logger.info(f"Получено фото в медиагруппе {media_group_id}")
 
-
+            # Логирование информации о группе
+            logger.debug(f"Количество элементов в сообщении: {len(update.message.photo)}")
+            logger.debug(f"Размеры фото: {[p.file_size for p in update.message.photo]}")
             # Инициализация группы, если ее нет
             context.user_data.setdefault("media_groups", {})
             if media_group_id not in context.user_data["media_groups"]:
