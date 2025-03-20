@@ -223,9 +223,6 @@ async def create_post_fish(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, CatchTgTable, UserTgTable, CatchTgImage) -> int:
     """Шаг 6: Загрузка фото и сохранение данных в базу данных."""
     user = update.effective_user
-    logger.info(f"Получено сообщение типа: {update.message.effective_attachment}")
-    logger.info(f"Полное содержимое update: {update.to_dict()}")
-
 
 
     if update.message and update.message.photo:
@@ -233,11 +230,18 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             # Обработка медиагруппы
             logger.warning(f"Загрузка медиагруппы.")
             media_group_id = update.message.media_group_id
-            logger.info(f"Получено фото в медиагруппе {media_group_id}")
 
-            # Логирование информации о группе
-            logger.info(f"Количество элементов в сообщении: {len(update.message.photo)}")
-            logger.info(f"Размеры фото: {[p.file_size for p in update.message.photo]}")
+                        # Логирование входящего сообщения
+            logger.info(
+                f"\n▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n"
+                f"📨 Получено сообщение\n"
+                f"├ Media Group ID: {media_group_id}\n"
+                f"├ User ID: {user.id}\n"
+                f"├ Photo sizes: {len(update.message.photo)}\n"
+                f"└ File sizes: {[p.file_size for p in update.message.photo]}"
+            )
+
+
             # Инициализация группы, если ее нет
             context.user_data.setdefault("media_groups", {})
             if media_group_id not in context.user_data["media_groups"]:
@@ -246,10 +250,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                     'lock': asyncio.Lock(),  # Создаем новую блокировку
                     "task_created": False  # Флаг для отслеживания задачи
                 }
-            logger.info(
-            f"Медиагруппа {update.message.media_group_id}. "
-            f"Сообщений в группе: {len(context.user_data['media_groups'][media_group_id]['photos'])}"
-            )
+
             current_group = context.user_data["media_groups"][media_group_id]
             # logger.info(f"Текущее количество фото в группе: {len(current_group['photos'])}")
             # Скачивание фото
@@ -258,6 +259,15 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 file_bytes = await photo_file.download_as_bytearray()
                 #photo_path = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
                 object_name = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
+
+
+                logger.debug(
+                    f"\n■■■■■■■■■■■■■■■■■■■■■■■■■\n"
+                    f"🖼 Обработка фото\n"
+                    f"├ Media Group ID: {media_group_id}\n"
+                    f"├ Текущих фото в группе: {len(current_group['photos'])}"
+                )
+
                 minio_path = await upload_to_minio(file_bytes, object_name)
 
                 #await photo_file.download_to_drive(photo_path)
@@ -268,7 +278,17 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
                 # Добавляем фото в группу
                 current_group["photos"].append({"path": minio_path, "hash": image_hash})
-                logger.info(f"Текущее количество фото в группе: {len(current_group['photos'])}")
+                
+
+                logger.info(
+                    f"\n▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀\n"
+                    f"✅ Фото добавлено в группу\n"
+                    f"├ Media Group ID: {media_group_id}\n"
+                    f"├ Всего уникальных фото: {len(current_group['photos'])}\n"
+                    f"├ Хеш: {image_hash}\n"
+                    f"└ Путь в MinIO: {minio_path}"
+                )
+
                 # Создаем задачу только для первого фото в группе
                 if not current_group["task_created"]:
                     current_group["task_created"] = True
@@ -282,6 +302,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                             UserTgTable
                         )
                     )
+                    logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
             
             return ConversationHandler.END
