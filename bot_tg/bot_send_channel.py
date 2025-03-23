@@ -98,6 +98,57 @@ async def process_media_group(
 
 
 
+async def handle_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE, CatchTgTable, UserTgTable, CatchTgImage) -> int:
+    user = update.effective_user
+    media_group_id = update.message.media_group_id
+    logger.info(f"🚩 Начало обработки медиагруппы {media_group_id}")
+
+    # Инициализация группы
+    context.user_data.setdefault("media_groups", {})
+    if media_group_id not in context.user_data["media_groups"]:
+        context.user_data["media_groups"][media_group_id] = {
+            "photos": [],
+            "task_created": False,
+        }
+
+    current_group = context.user_data["media_groups"][media_group_id]
+
+    # Обработка фото
+    try:
+        photo_file = await update.message.photo[-1].get_file()
+        file_bytes = await photo_file.download_as_bytearray()
+        object_name = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
+        
+        if minio_path := await upload_to_minio(file_bytes, object_name):
+            image_hash = calculate_image_hash(file_bytes)
+            current_group["photos"].append({"path": minio_path, "hash": image_hash})
+            logger.info(f"📌 Добавлено фото в группу {media_group_id}. Всего: {len(current_group['photos'])}")
+            
+    except Exception as e:
+        logger.error(f"❌ Ошибка обработки фото: {e}")
+        return ConversationHandler.END
+
+    # Запуск задачи обработки группы
+    if not current_group["task_created"]:
+        current_group["task_created"] = True
+        asyncio.create_task(
+            process_media_group(
+                media_group_id,
+                update,
+                context,
+                CatchTgTable,
+                CatchTgImage,
+                UserTgTable
+            )
+        )
+        logger.info(f"🚀 Задача обработки группы {media_group_id} создана")
+
+    return ConversationHandler.END  # Немедленно завершаем диалог
+
+
+
+
+
 async def create_post_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Начало процесса создания поста через Inline-кнопку."""
     query = update.callback_query
@@ -225,87 +276,88 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
     if update.message and update.message.photo:
         if update.message.media_group_id:
-            # Обработка медиагруппы
+            return await handle_media_group(update, context, CatchTgTable, UserTgTable, CatchTgImage)
+            # # Обработка медиагруппы
 
-            logger.warning(f"Загрузка медиагруппы.")
-            media_group_id = update.message.media_group_id
+            # logger.warning(f"Загрузка медиагруппы.")
+            # media_group_id = update.message.media_group_id
 
-                        # Логирование входящего сообщения
-            logger.info(
-                f"\n▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n"
-                f"📨 Получено сообщение\n"
-                f"├ Media Group ID: {media_group_id}\n"
-                f"├ User ID: {user.id}\n"
-                f"├ Photo sizes: {len(update.message.photo)}\n"
-                f"└ File sizes: {[p.file_size for p in update.message.photo]}"
-            )
+            #             # Логирование входящего сообщения
+            # logger.info(
+            #     f"\n▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n"
+            #     f"📨 Получено сообщение\n"
+            #     f"├ Media Group ID: {media_group_id}\n"
+            #     f"├ User ID: {user.id}\n"
+            #     f"├ Photo sizes: {len(update.message.photo)}\n"
+            #     f"└ File sizes: {[p.file_size for p in update.message.photo]}"
+            # )
 
 
-            # Инициализация группы, если ее нет
+            # # Инициализация группы, если ее нет
             
-            context.user_data.setdefault("media_groups", {})
-            if media_group_id not in context.user_data["media_groups"]:
-                context.user_data["media_groups"][media_group_id] = {
-                    "photos": [],
-                    "task_created": False,  # Флаг для отслеживания задачи
-                }
+            # context.user_data.setdefault("media_groups", {})
+            # if media_group_id not in context.user_data["media_groups"]:
+            #     context.user_data["media_groups"][media_group_id] = {
+            #         "photos": [],
+            #         "task_created": False,  # Флаг для отслеживания задачи
+            #     }
 
-            current_group = context.user_data["media_groups"][media_group_id]
-            # logger.info(f"Текущее количество фото в группе: {len(current_group['photos'])}")
-            # Скачивание фото
+            # current_group = context.user_data["media_groups"][media_group_id]
+            # # logger.info(f"Текущее количество фото в группе: {len(current_group['photos'])}")
+            # # Скачивание фото
 
-            photo_file = await update.message.photo[-1].get_file()
-            file_bytes = await photo_file.download_as_bytearray()
-                #photo_path = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
-            object_name = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
+            # photo_file = await update.message.photo[-1].get_file()
+            # file_bytes = await photo_file.download_as_bytearray()
+            #     #photo_path = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
+            # object_name = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
 
 
-            logger.info(
-                    f"\n■■■■■■■■■■■■■■■■■■■■■■■■■\n"
-                    f"🖼 Обработка фото\n"
-                    f"├ Media Group ID: {media_group_id}\n"
-                    f"├ Текущих фото в группе: {len(current_group['photos'])}"
-                )
+            # logger.info(
+            #         f"\n■■■■■■■■■■■■■■■■■■■■■■■■■\n"
+            #         f"🖼 Обработка фото\n"
+            #         f"├ Media Group ID: {media_group_id}\n"
+            #         f"├ Текущих фото в группе: {len(current_group['photos'])}"
+            #     )
 
-            minio_path = await upload_to_minio(file_bytes, object_name)
+            # minio_path = await upload_to_minio(file_bytes, object_name)
 
-                #await photo_file.download_to_drive(photo_path)
-                #image_hash = calculate_image_hash(photo_path)
-            if minio_path:
-                    # Вычисляем хеш из байтов без сохранения на диск
-                image_hash = calculate_image_hash(file_bytes)
+            #     #await photo_file.download_to_drive(photo_path)
+            #     #image_hash = calculate_image_hash(photo_path)
+            # if minio_path:
+            #         # Вычисляем хеш из байтов без сохранения на диск
+            #     image_hash = calculate_image_hash(file_bytes)
 
-                # Добавляем фото в группу
-            current_group["photos"].append({"path": minio_path, "hash": image_hash})
+            #     # Добавляем фото в группу
+            # current_group["photos"].append({"path": minio_path, "hash": image_hash})
                 
 
-            logger.info(
-                    f"\n▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀\n"
-                    f"✅ Фото добавлено в группу\n"
-                    f"├ Media Group ID: {media_group_id}\n"
-                    f"├ Всего уникальных фото: {len(current_group['photos'])}\n"
-                    f"├ Хеш: {image_hash}\n"
-                    f"└ Путь в MinIO: {minio_path}"
-                )
+            # logger.info(
+            #         f"\n▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀\n"
+            #         f"✅ Фото добавлено в группу\n"
+            #         f"├ Media Group ID: {media_group_id}\n"
+            #         f"├ Всего уникальных фото: {len(current_group['photos'])}\n"
+            #         f"├ Хеш: {image_hash}\n"
+            #         f"└ Путь в MinIO: {minio_path}"
+            #     )
 
-                # Создаем задачу только для первого фото в группе
+            #     # Создаем задачу только для первого фото в группе
             
-            if not current_group["task_created"]:
-                current_group["task_created"] = True
-                asyncio.create_task(
-                        process_media_group(
-                            media_group_id, 
-                            update, 
-                            context, 
-                            CatchTgTable, 
-                            CatchTgImage, 
-                            UserTgTable
-                        )
-                    )
+            # if not current_group["task_created"]:
+            #     current_group["task_created"] = True
+            #     asyncio.create_task(
+            #             process_media_group(
+            #                 media_group_id, 
+            #                 update, 
+            #                 context, 
+            #                 CatchTgTable, 
+            #                 CatchTgImage, 
+            #                 UserTgTable
+            #             )
+            #         )
                 
-                logger.info(f"🚀 Запущена обработка группы {media_group_id}")
-            await asyncio.sleep(5)
-            return ConversationHandler.END 
+            #     logger.info(f"🚀 Запущена обработка группы {media_group_id}")
+            # await asyncio.sleep(5)
+            # return ConversationHandler.END 
             
         else:
             logger.warning(f" медиагруппа. не обнаружена идет загрузка одиночного фото")
