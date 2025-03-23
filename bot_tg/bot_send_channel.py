@@ -86,6 +86,8 @@ async def process_media_group(
         await update.message.reply_text("Фото добавлено в группу.")
         await send_post_to_channel(update, context, CatchTgTable, UserTgTable, CatchTgImage)
 
+
+
     except Exception as e:
         logger.error(f"Ошибка в медиагруппе: {e}")
         await update.message.reply_text("Ошибка при обработке группы фото.")
@@ -93,7 +95,12 @@ async def process_media_group(
         # Удаляем группу из контекста
         if media_group_id in context.user_data["media_groups"]:
             del context.user_data["media_groups"][media_group_id]
-        context.user_data["media_group_finished"] = True
+        context.user_data["next_handler"] = {
+        # "function": confirm_end,  # Ссылка на функцию-обработчик
+        "update": update,         # Сохраняем update для контекста
+        "context": context        # Сохраняем context
+        }
+
     # return ConversationHandler.END
 
 
@@ -226,6 +233,9 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
     if update.message and update.message.photo:
         if update.message.media_group_id:
             # Обработка медиагруппы
+            if "next_handler" in context.user_data:
+                # handler_data = context.user_data.pop("next_handler")
+                return ConversationHandler.END
             logger.warning(f"Загрузка медиагруппы.")
             media_group_id = update.message.media_group_id
 
@@ -241,13 +251,12 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
 
             # Инициализация группы, если ее нет
-            context.user_data.setdefault("media_group_finished", False)
+            
             context.user_data.setdefault("media_groups", {})
             if media_group_id not in context.user_data["media_groups"]:
                 context.user_data["media_groups"][media_group_id] = {
                     "photos": [],
                     "task_created": False,  # Флаг для отслеживания задачи
-                    "send_chanel": False
                 }
 
             current_group = context.user_data["media_groups"][media_group_id]
@@ -305,12 +314,6 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 
                 logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
-            if context.user_data["media_group_finished"]:
-                context.user_data["media_group_finished"] = False
-                return ConversationHandler.END
-            # return ConversationHandler.END
-            else: 
-                return  
 
             
         else:
