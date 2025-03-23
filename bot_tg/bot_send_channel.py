@@ -84,9 +84,7 @@ async def process_media_group(
 
         # Отправляем пост в канал (только для медиагруппы)
         await update.message.reply_text("Фото добавлено в группу.")
-        await send_post_to_channel(update, context, CatchTgTable, UserTgTable, CatchTgImage)
-
-        
+        await send_post_to_channel(update, context, CatchTgTable, UserTgTable, CatchTgImage,media_group_id)
 
     except Exception as e:
         logger.error(f"Ошибка в медиагруппе: {e}")
@@ -95,7 +93,7 @@ async def process_media_group(
         # Удаляем группу из контекста
         if media_group_id in context.user_data["media_groups"]:
             del context.user_data["media_groups"][media_group_id]
-        return True
+        context.user_data["media_group_finished"] = True
     # return ConversationHandler.END
 
 
@@ -247,7 +245,8 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             if media_group_id not in context.user_data["media_groups"]:
                 context.user_data["media_groups"][media_group_id] = {
                     "photos": [],
-                    "task_created": False  # Флаг для отслеживания задачи
+                    "task_created": False,  # Флаг для отслеживания задачи
+                    "send_chanel": False
                 }
 
             current_group = context.user_data["media_groups"][media_group_id]
@@ -289,10 +288,10 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 )
 
                 # Создаем задачу только для первого фото в группе
-            boolean=False
+            
             if not current_group["task_created"]:
                 current_group["task_created"] = True
-                boolean = asyncio.create_task(
+                asyncio.create_task(
                         process_media_group(
                             media_group_id, 
                             update, 
@@ -305,11 +304,13 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 
                 logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
-            if boolean:
-              return ConversationHandler.END  
+            if context.user_data["media_group_finished"]:
+                return ConversationHandler.END
             # return ConversationHandler.END
-            else:
-                return
+            else: 
+                return  
+
+            
         else:
             logger.warning(f" медиагруппа. не обнаружена идет загрузка одиночного фото")
             # Обработка одиночного фото
@@ -389,7 +390,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
     return ConversationHandler.END
 
 
-async def send_post_to_channel(update: Update, context: ContextTypes.DEFAULT_TYPE, CatchTgTable, UserTgTable, CatchTgImage):
+async def send_post_to_channel(update: Update, context: ContextTypes.DEFAULT_TYPE, CatchTgTable, UserTgTable, CatchTgImage,media_group_id):
     """Отправка поста в Telegram-канал."""
     user = update.effective_user
 
@@ -512,6 +513,7 @@ async def send_post_to_channel(update: Update, context: ContextTypes.DEFAULT_TYP
 
     logger.info(f"Пост пользователя {user.id} успешно отправлен в канал.")
     await update.message.reply_text("Ваш пост успешно отправлен в канал!", reply_markup=get_main_keyboard(True))
+
 
 
 async def cancel_create_post(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
