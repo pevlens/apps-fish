@@ -241,6 +241,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
 
             # Инициализация группы, если ее нет
+            context.user_data.setdefault("media_group_finished", False)
             context.user_data.setdefault("media_groups", {})
             if media_group_id not in context.user_data["media_groups"]:
                 context.user_data["media_groups"][media_group_id] = {
@@ -305,6 +306,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
             if context.user_data["media_group_finished"]:
+                context.user_data["media_group_finished"] = False
                 return ConversationHandler.END
             # return ConversationHandler.END
             else: 
