@@ -97,7 +97,8 @@ async def process_media_group(
         # Удаляем группу из контекста
         if media_group_id in context.user_data["media_groups"]:
             del context.user_data["media_groups"][media_group_id]
-
+            
+    return ConversationHandler.END
 
 # async def delayed_group_processing(media_group_id, update, context, *args):
 #     """Обработчик с динамическим ожиданием завершения группы"""
@@ -365,7 +366,8 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             
             if not current_group["task_created"]:
                 current_group["task_created"] = True
-                asyncio.create_task(
+                logger.info(f"🚀 Запущена обработка группы {media_group_id}")
+                return asyncio.create_task(
                         process_media_group(
                             media_group_id, 
                             update, 
@@ -378,7 +380,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 
                 logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
-            return CREATE_POST_IMAGE 
+            return  
             
         else:
             logger.warning(f" медиагруппа. не обнаружена идет загрузка одиночного фото")
