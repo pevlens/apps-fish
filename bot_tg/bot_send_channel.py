@@ -314,7 +314,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 
                 logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
-
+            return 
             
         else:
             logger.warning(f" медиагруппа. не обнаружена идет загрузка одиночного фото")
