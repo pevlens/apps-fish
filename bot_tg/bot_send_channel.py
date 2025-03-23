@@ -84,7 +84,7 @@ async def process_media_group(
 
         # Отправляем пост в канал (только для медиагруппы)
         await update.message.reply_text("Фото добавлено в группу.")
-        await send_post_to_channel(update, context, CatchTgTable, UserTgTable, CatchTgImage,media_group_id)
+        await send_post_to_channel(update, context, CatchTgTable, UserTgTable, CatchTgImage)
 
     except Exception as e:
         logger.error(f"Ошибка в медиагруппе: {e}")
@@ -392,7 +392,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
     return ConversationHandler.END
 
 
-async def send_post_to_channel(update: Update, context: ContextTypes.DEFAULT_TYPE, CatchTgTable, UserTgTable, CatchTgImage,media_group_id):
+async def send_post_to_channel(update: Update, context: ContextTypes.DEFAULT_TYPE, CatchTgTable, UserTgTable, CatchTgImage):
     """Отправка поста в Telegram-канал."""
     user = update.effective_user
 
