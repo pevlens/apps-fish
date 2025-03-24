@@ -107,7 +107,8 @@ async def process_media_group(
             date=update.message.date,
             chat=update.message.chat,
             from_user=update.message.from_user,
-            text="/done"  # Команда, которая вызовет обработчик
+            text="/done",  # Команда, которая вызовет обработчик
+            bot=context.bot
         )
 
         fake_update = Update(update.update_id, message=fake_message)
