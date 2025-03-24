@@ -109,7 +109,7 @@ async def finish_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE)
     """
 
     logger.info(f"finish_media_group: функция вызвана")
-
+    await asyncio.sleep(6)
     if context.user_data.get("media_group_processed"):
 
         logger.info("finish_media_group: обработка завершена, отправляю сообщение")
