@@ -102,23 +102,33 @@ async def process_media_group(
                 # ⚡ Искусственно создаем команду "/done"
         context.user_data["media_group_processed"] = True
         logger.info(f"Начало обработки  context.user_data[media_group_processed] {context.user_data['media_group_processed']}")
+        # Создаем фейковое сообщение с командой /done
         fake_message = Message(
-            message_id=update.message.message_id + 1,  # Уникальный ID сообщения
+            message_id=update.message.message_id + 1,
             date=update.message.date,
             chat=update.message.chat,
             from_user=update.message.from_user,
-            text="/done",  # Команда, которая вызовет обработчик
-            bot=context.bot
+            text="/done",
+        )
+        
+        # Явно привязываем бота к сообщению
+        fake_message.set_bot(context.bot)
+        
+        # Создаем Update с уникальным ID
+        fake_update = Update(
+            update_id=update.update_id + 1,  # Увеличиваем ID для уникальности
+            message=fake_message
         )
 
-        fake_update = Update(update.update_id, message=fake_message)
-        asyncio.create_task(send_fake_update(context, fake_update))
+        # Отправляем в очередь обработки
+        asyncio.create_task(context.update_queue.put(fake_update))
 
 
 
-async def send_fake_update(context, fake_update):
-    logger.info(f"отправка команды done")
-    await context.update_queue.put(fake_update)  # Асинхронно кладем в очередь
+
+# async def send_fake_update(context, fake_update):
+#     logger.info(f"отправка команды done")
+#     await context.update_queue.put(fake_update)  # Асинхронно кладем в очередь
 
 
             
