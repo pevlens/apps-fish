@@ -97,11 +97,11 @@ async def process_media_group(
     finally:
         if media_group_id in context.user_data["media_groups"]:
             del context.user_data["media_groups"][media_group_id]
-        logger.info(f"Начало обработки  context.user_data[media_group_processed] {context.user_data["media_group_processed"]}")
+
         # Удаляем группу из контекста
                 # ⚡ Искусственно создаем команду "/done"
         context.user_data["media_group_processed"] = True
-        logger.info(f"Начало обработки  context.user_data[media_group_processed] {context.user_data["media_group_processed"]}")
+        logger.info(f"Начало обработки  context.user_data[media_group_processed] {context.user_data['media_group_processed']}")
         fake_message = Message(
             message_id=update.message.message_id + 1,  # Уникальный ID сообщения
             date=update.message.date,
