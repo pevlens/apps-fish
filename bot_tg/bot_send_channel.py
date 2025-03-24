@@ -186,6 +186,22 @@ async def finish_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE)
     else:
         # Логирование информации о группе
         logger.info(f"Фото ещё обрабатываются, пожалуйста, подождите...")
+        media_group_id = update.message.media_group_id
+        current_group = context.user_data["media_groups"][media_group_id]
+        if not current_group["task_created"]:
+            current_group["task_created"] = True
+            logger.info(f"🚀 Запущена обработка группы {media_group_id}")
+            asyncio.create_task(
+                    process_media_group(
+                            media_group_id, 
+                            update, 
+                            context, 
+                            CatchTgTable, 
+                            CatchTgImage, 
+                            UserTgTable
+                        )
+                    )
+                
         # await update.message.reply_text("Фото ещё обрабатываются, пожалуйста, подождите...")
         return WAITING_MEDIA_GROUP
 
@@ -389,19 +405,19 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
                 # Создаем задачу только для первого фото в группе
             
-            if not current_group["task_created"]:
-                current_group["task_created"] = True
-                logger.info(f"🚀 Запущена обработка группы {media_group_id}")
-                asyncio.create_task(
-                        process_media_group(
-                            media_group_id, 
-                            update, 
-                            context, 
-                            CatchTgTable, 
-                            CatchTgImage, 
-                            UserTgTable
-                        )
-                    )
+            # if not current_group["task_created"]:
+            #     current_group["task_created"] = True
+            #     logger.info(f"🚀 Запущена обработка группы {media_group_id}")
+            #     asyncio.create_task(
+            #             process_media_group(
+            #                 media_group_id, 
+            #                 update, 
+            #                 context, 
+            #                 CatchTgTable, 
+            #                 CatchTgImage, 
+            #                 UserTgTable
+            #             )
+            #         )
                 
                 # logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
