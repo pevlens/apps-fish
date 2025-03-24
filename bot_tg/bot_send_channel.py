@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
+    CommandHandler,
     ConversationHandler,
     MessageHandler,
     filters,
@@ -100,75 +101,6 @@ async def process_media_group(
         context.user_data["media_group_processed"] = True
             
     
-
-# async def delayed_group_processing(media_group_id, update, context, *args):
-#     """Обработчик с динамическим ожиданием завершения группы"""
-#     while True:
-#         await asyncio.sleep(1)  # Проверяем каждую секунду
-        
-#         async with context.user_data.get("media_lock", asyncio.Lock()):
-#             group = context.user_data["media_groups"].get(media_group_id)
-            
-#             if not group or time.time() - group["last_update"] > 5:  # 5 сек без изменений
-#                 break
-
-#     # Основная логика обработки
-#     await process_media_group(media_group_id, update, context, *args)
-
-
-
-
-# async def handle_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE, CatchTgTable, UserTgTable, CatchTgImage) -> int:
-#     user = update.effective_user
-#     media_group_id = update.message.media_group_id
-#     logger.info(f"🚩 Начало обработки медиагруппы {media_group_id}")
-
-#     # Инициализация группы
-#     async with context.user_data.setdefault("media_lock", asyncio.Lock()):
-#         context.user_data.setdefault("media_groups", {})
-#         if media_group_id not in context.user_data["media_groups"]:
-#             context.user_data["media_groups"][media_group_id] = {
-#                 "photos": [],
-#                 "task_created": None,
-#                 "last_update": time.time(),
-#             }
-
-#         current_group = context.user_data["media_groups"][media_group_id]
-#         current_group["last_update"] = time.time()
-#         # Обработка фото
-#         try:
-#             photo_file = await update.message.photo[-1].get_file()
-#             file_bytes = await photo_file.download_as_bytearray()
-#             object_name = f"tg/{user.id}_post_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
-            
-#             if minio_path := await upload_to_minio(file_bytes, object_name):
-#                 image_hash = calculate_image_hash(file_bytes)
-#                 current_group["photos"].append({"path": minio_path, "hash": image_hash})
-#                 logger.info(f"📌 Добавлено фото в группу {media_group_id}. Всего: {len(current_group['photos'])}")
-                
-#         except Exception as e:
-#             logger.error(f"❌ Ошибка обработки фото: {e}")
-#             return ConversationHandler.END
-
-#         # Перезапуск таймера обработки для группы
-#         if current_group["task_created"] and not current_group["task_created"].done():
-#             current_group["task_created"].cancel()
-
-#         current_group["task_created"] = asyncio.create_task(
-#             delayed_group_processing(
-#                 media_group_id,
-#                 update, 
-#                 context,
-#                 CatchTgTable,
-#                 CatchTgImage,
-#                 UserTgTable
-#             )
-#         )
-
-
-###############################################
-# Обработчик для завершения диалога в WAITING_MEDIA_GROUP
-###############################################
 I=0
 async def finish_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
@@ -177,30 +109,31 @@ async def finish_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE)
     """
     
     logger.info(f"finish_media_group: функция вызвана {I}")
+    global I
     I=+1
     if context.user_data.get("media_group_processed"):
 
         logger.info("finish_media_group: обработка завершена, отправляю сообщение")
-        await update.message.reply_text("Обработка фото завершена. Спасибо!", reply_markup=get_main_keyboard(True))
+        # await update.message.reply_text("Обработка фото завершена. Спасибо!", reply_markup=get_main_keyboard(True))
         return ConversationHandler.END
     else:
         # Логирование информации о группе
         logger.info(f"Фото ещё обрабатываются, пожалуйста, подождите...")
-        media_group_id = update.message.media_group_id
-        current_group = context.user_data["media_groups"][media_group_id]
-        if not current_group["task_created"]:
-            current_group["task_created"] = True
-            logger.info(f"🚀 Запущена обработка группы {media_group_id}")
-            asyncio.create_task(
-                    process_media_group(
-                            media_group_id, 
-                            update, 
-                            context, 
-                            CatchTgTable, 
-                            CatchTgImage, 
-                            UserTgTable
-                        )
-                    )
+        # media_group_id = update.message.media_group_id
+        # current_group = context.user_data["media_groups"][media_group_id]
+        # if not current_group["task_created"]:
+        #     current_group["task_created"] = True
+        #     logger.info(f"🚀 Запущена обработка группы {media_group_id}")
+        #     asyncio.create_task(
+        #             process_media_group(
+        #                     media_group_id, 
+        #                     update, 
+        #                     context, 
+        #                     CatchTgTable, 
+        #                     CatchTgImage, 
+        #                     UserTgTable
+        #                 )
+        #             )
                 
         # await update.message.reply_text("Фото ещё обрабатываются, пожалуйста, подождите...")
         return WAITING_MEDIA_GROUP
@@ -405,23 +338,23 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
                 # Создаем задачу только для первого фото в группе
             
-            # if not current_group["task_created"]:
-            #     current_group["task_created"] = True
-            #     logger.info(f"🚀 Запущена обработка группы {media_group_id}")
-            #     asyncio.create_task(
-            #             process_media_group(
-            #                 media_group_id, 
-            #                 update, 
-            #                 context, 
-            #                 CatchTgTable, 
-            #                 CatchTgImage, 
-            #                 UserTgTable
-            #             )
-            #         )
-                
+            if not current_group["task_created"]:
+                current_group["task_created"] = True
                 # logger.info(f"🚀 Запущена обработка группы {media_group_id}")
+                asyncio.create_task(
+                        process_media_group(
+                            media_group_id, 
+                            update, 
+                            context, 
+                            CatchTgTable, 
+                            CatchTgImage, 
+                            UserTgTable
+                        )
+                    )
+                
+                logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
-            return WAITING_MEDIA_GROUP 
+            return await finish_media_group(update, context) 
             
         else:
             logger.warning(f" медиагруппа. не обнаружена идет загрузка одиночного фото")
@@ -674,6 +607,7 @@ create_post_conv_handler = ConversationHandler(
             MessageHandler(filters.TEXT & ~filters.COMMAND, lambda u, c: create_post_image(u, c, CatchTgTable, UserTgTable, CatchTgImage))
         ],
         WAITING_MEDIA_GROUP: [
+            CommandHandler("done", finish_media_group),  # Добавьте это
             MessageHandler(filters.TEXT & ~filters.COMMAND, finish_media_group),
             CallbackQueryHandler(cancel_create_post, pattern=f"^{CALLBACK_CANCEL_POST}$")
         ],
