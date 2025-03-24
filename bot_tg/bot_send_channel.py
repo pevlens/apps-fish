@@ -413,8 +413,12 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             await update.message.reply_text("Фото успешно добавлено!")
 
     else:
+
         # Пользователь не отправил фото
         logger.info(f"есть ли media_group_processed {context.user_data['media_group_processed']}")
+        if  context.user_data.get("media_group_processed"):
+            return ConversationHandler.END
+        
         await update.message.reply_text(
             "Вы не отправили фото. Попробуйте еще раз, это нужно для подтверждения улова.",
             reply_markup=InlineKeyboardMarkup(keyboard)
