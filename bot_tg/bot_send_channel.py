@@ -135,7 +135,7 @@ async def finish_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE)
         #             )
                 
         # await update.message.reply_text("Фото ещё обрабатываются, пожалуйста, подождите...")
-        return WAITING_MEDIA_GROUP
+        return await finish_media_group(update, context,)
 
 
 
