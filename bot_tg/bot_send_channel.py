@@ -1,4 +1,4 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove, Message
 from telegram.ext import (
     CommandHandler,
     ConversationHandler,
@@ -95,10 +95,29 @@ async def process_media_group(
         logger.error(f"Ошибка в медиагруппе: {e}")
         await update.message.reply_text("Ошибка при обработке группы фото.")
     finally:
-        # Удаляем группу из контекста
         if media_group_id in context.user_data["media_groups"]:
             del context.user_data["media_groups"][media_group_id]
+        logger.info(f"Начало обработки  context.user_data[media_group_processed] {context.user_data["media_group_processed"]}")
+        # Удаляем группу из контекста
+                # ⚡ Искусственно создаем команду "/done"
         context.user_data["media_group_processed"] = True
+        logger.info(f"Начало обработки  context.user_data[media_group_processed] {context.user_data["media_group_processed"]}")
+        fake_message = Message(
+            message_id=update.message.message_id + 1,  # Уникальный ID сообщения
+            date=update.message.date,
+            chat=update.message.chat,
+            from_user=update.message.from_user,
+            text="/done"  # Команда, которая вызовет обработчик
+        )
+
+        fake_update = Update(update.update_id, message=fake_message)
+        logger.info(f"отправка команды done {fake_update}")   
+        # Отправляем в очередь обработчиков
+        context.update_queue.put(fake_update)
+
+        
+
+
             
     
 
@@ -109,7 +128,7 @@ async def finish_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE)
     """
 
     logger.info(f"finish_media_group: функция вызвана")
-    await asyncio.sleep(6)
+
     if context.user_data.get("media_group_processed"):
 
         logger.info("finish_media_group: обработка завершена, отправляю сообщение")
@@ -135,8 +154,8 @@ async def finish_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE)
         #             )
                 
         # await update.message.reply_text("Фото ещё обрабатываются, пожалуйста, подождите...")
-        await asyncio.sleep(6)
-        return await finish_media_group(update, context,)
+
+        return WAITING_MEDIA_GROUP
 
 
 
@@ -340,7 +359,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             
             if not current_group["task_created"]:
                 current_group["task_created"] = True
-                # logger.info(f"🚀 Запущена обработка группы {media_group_id}")
+                logger.info(f"🚀 Запущена обработка группы {media_group_id}")
                 asyncio.create_task(
                         process_media_group(
                             media_group_id, 
@@ -354,7 +373,9 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 
                 logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
-            return await finish_media_group(update, context) 
+                
+            # return await finish_media_group(update, context) 
+            return WAITING_MEDIA_GROUP
             
         else:
             logger.warning(f" медиагруппа. не обнаружена идет загрузка одиночного фото")
