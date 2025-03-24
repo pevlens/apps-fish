@@ -35,7 +35,7 @@ keyboard = [[InlineKeyboardButton("❌ Отмена", callback_data=CALLBACK_CAN
 
 
 CREATE_POST_IMAGE = 6
-
+WAITING_MEDIA_GROUP = 7
 
 async def process_media_group(
     media_group_id: str,
@@ -85,7 +85,7 @@ async def process_media_group(
             conn.commit()
 
         # Отправляем пост в канал (только для медиагруппы)
-        await update.message.reply_text("Фото добавлено в группу.")
+        #await update.message.reply_text("Фото добавлено в группу.")
         await send_post_to_channel(update, context, CatchTgTable, UserTgTable, CatchTgImage)
 
 
@@ -98,7 +98,7 @@ async def process_media_group(
         if media_group_id in context.user_data["media_groups"]:
             del context.user_data["media_groups"][media_group_id]
             
-    return ConversationHandler.END
+    context.user_data["media_group_processed"] = True
 
 # async def delayed_group_processing(media_group_id, update, context, *args):
 #     """Обработчик с динамическим ожиданием завершения группы"""
@@ -163,6 +163,24 @@ async def process_media_group(
 #                 UserTgTable
 #             )
 #         )
+
+
+###############################################
+# Обработчик для завершения диалога в WAITING_MEDIA_GROUP
+###############################################
+async def finish_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """
+    Позволяет пользователю завершить диалог вручную, когда он убедился, что все фото загружены.
+    При этом можно проверить, завершилась ли обработка медиагруппы.
+    """
+    if context.user_data.get("media_group_processed"):
+        await update.message.reply_text("Обработка фото завершена. Спасибо!", reply_markup=get_main_keyboard(True))
+        return ConversationHandler.END
+    else:
+        # Логирование информации о группе
+        logger.info(f"Фото ещё обрабатываются, пожалуйста, подождите...")
+        # await update.message.reply_text("Фото ещё обрабатываются, пожалуйста, подождите...")
+        return WAITING_MEDIA_GROUP
 
 
 
@@ -316,7 +334,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
 
             # Инициализация группы, если ее нет
-            
+            context.user_data.setdefault("media_group_processed", False)
             context.user_data.setdefault("media_groups", {})
             if media_group_id not in context.user_data["media_groups"]:
                 context.user_data["media_groups"][media_group_id] = {
@@ -367,7 +385,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             if not current_group["task_created"]:
                 current_group["task_created"] = True
                 logger.info(f"🚀 Запущена обработка группы {media_group_id}")
-                return asyncio.create_task(
+                asyncio.create_task(
                         process_media_group(
                             media_group_id, 
                             update, 
@@ -378,9 +396,9 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                         )
                     )
                 
-                logger.info(f"🚀 Запущена обработка группы {media_group_id}")
+                # logger.info(f"🚀 Запущена обработка группы {media_group_id}")
 
-            return  
+            return WAITING_MEDIA_GROUP 
             
         else:
             logger.warning(f" медиагруппа. не обнаружена идет загрузка одиночного фото")
@@ -632,6 +650,12 @@ create_post_conv_handler = ConversationHandler(
             MessageHandler(filters.PHOTO, lambda u, c: create_post_image(u, c, CatchTgTable, UserTgTable, CatchTgImage)),
             MessageHandler(filters.TEXT & ~filters.COMMAND, lambda u, c: create_post_image(u, c, CatchTgTable, UserTgTable, CatchTgImage))
         ],
+        WAITING_MEDIA_GROUP: [
+            MessageHandler(filters.TEXT & ~filters.COMMAND, finish_media_group),
+            CallbackQueryHandler(cancel_create_post, pattern=f"^{CALLBACK_CANCEL_POST}$")
+        ],
+
+
     },
     fallbacks=[
         MessageHandler(filters.Regex('^Отмена$'), cancel_create_post),  # Отмена через текст "Отмена"
