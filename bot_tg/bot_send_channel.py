@@ -34,8 +34,8 @@ keyboard = [[InlineKeyboardButton("❌ Отмена", callback_data=CALLBACK_CAN
 
 
 
-CREATE_POST_IMAGE = 6
-WAITING_MEDIA_GROUP = 7
+CREATE_POST_IMAGE = 41
+WAITING_MEDIA_GROUP = 42
 
 async def process_media_group(
     media_group_id: str,
@@ -97,8 +97,9 @@ async def process_media_group(
         # Удаляем группу из контекста
         if media_group_id in context.user_data["media_groups"]:
             del context.user_data["media_groups"][media_group_id]
+        context.user_data["media_group_processed"] = True
             
-    context.user_data["media_group_processed"] = True
+    
 
 # async def delayed_group_processing(media_group_id, update, context, *args):
 #     """Обработчик с динамическим ожиданием завершения группы"""
@@ -168,12 +169,18 @@ async def process_media_group(
 ###############################################
 # Обработчик для завершения диалога в WAITING_MEDIA_GROUP
 ###############################################
+I=0
 async def finish_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
     Позволяет пользователю завершить диалог вручную, когда он убедился, что все фото загружены.
     При этом можно проверить, завершилась ли обработка медиагруппы.
     """
+    
+    logger.info(f"finish_media_group: функция вызвана {I}")
+    I=+1
     if context.user_data.get("media_group_processed"):
+
+        logger.info("finish_media_group: обработка завершена, отправляю сообщение")
         await update.message.reply_text("Обработка фото завершена. Спасибо!", reply_markup=get_main_keyboard(True))
         return ConversationHandler.END
     else:
