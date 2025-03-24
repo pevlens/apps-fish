@@ -101,16 +101,15 @@ async def process_media_group(
         context.user_data["media_group_processed"] = True
             
     
-I=0
+
 async def finish_media_group(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
     Позволяет пользователю завершить диалог вручную, когда он убедился, что все фото загружены.
     При этом можно проверить, завершилась ли обработка медиагруппы.
     """
-    
-    logger.info(f"finish_media_group: функция вызвана {I}")
-    global I
-    I=+1
+
+    logger.info(f"finish_media_group: функция вызвана")
+
     if context.user_data.get("media_group_processed"):
 
         logger.info("finish_media_group: обработка завершена, отправляю сообщение")
