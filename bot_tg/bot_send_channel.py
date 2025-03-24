@@ -388,7 +388,7 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
                 
             # return await finish_media_group(update, context) 
-            return  CREATE_POST_IMAGE
+            return  
 
             
         else:
@@ -411,8 +411,10 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             context.user_data["images"].append({"path": minio_path, "hash": image_hash})
 
             await update.message.reply_text("Фото успешно добавлено!")
+
     else:
         # Пользователь не отправил фото
+        logger.info(f"есть ли media_group_processed {context.user_data['media_group_processed']}")
         await update.message.reply_text(
             "Вы не отправили фото. Попробуйте еще раз, это нужно для подтверждения улова.",
             reply_markup=InlineKeyboardMarkup(keyboard)
@@ -638,7 +640,7 @@ create_post_conv_handler = ConversationHandler(
         CREATE_POST_LOCATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, create_post_location)],
         CREATE_POST_FISH: [MessageHandler(filters.TEXT & ~filters.COMMAND, create_post_fish)],
         CREATE_POST_IMAGE: [
-            CommandHandler("done", finish_media_group),
+            # CommandHandler("done", finish_media_group),
             MessageHandler(filters.PHOTO, lambda u, c: create_post_image(u, c, CatchTgTable, UserTgTable, CatchTgImage)),
             MessageHandler(filters.TEXT & ~filters.COMMAND, lambda u, c: create_post_image(u, c, CatchTgTable, UserTgTable, CatchTgImage))
         ],
@@ -651,6 +653,7 @@ create_post_conv_handler = ConversationHandler(
 
     },
     fallbacks=[
+        CommandHandler("done", cancel_create_post),
         MessageHandler(filters.Regex('^Отмена$'), cancel_create_post),  # Отмена через текст "Отмена"
         CallbackQueryHandler(cancel_create_post, pattern=f"^{CALLBACK_CANCEL_POST}$")  # Отмена через Inline-кнопку
     ]
