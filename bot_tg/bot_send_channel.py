@@ -111,11 +111,13 @@ async def process_media_group(
         )
 
         fake_update = Update(update.update_id, message=fake_message)
-        logger.info(f"отправка команды done {fake_update}")   
-        # Отправляем в очередь обработчиков
-        context.update_queue.put(fake_update)
+        asyncio.create_task(send_fake_update(context, fake_update))
 
-        
+
+
+async def send_fake_update(context, fake_update):
+    logger.info(f"отправка команды done")
+    await context.update_queue.put(fake_update)  # Асинхронно кладем в очередь
 
 
             
@@ -375,7 +377,8 @@ async def create_post_image(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
                 
             # return await finish_media_group(update, context) 
-            return WAITING_MEDIA_GROUP
+            return  CREATE_POST_IMAGE
+
             
         else:
             logger.warning(f" медиагруппа. не обнаружена идет загрузка одиночного фото")
@@ -624,11 +627,12 @@ create_post_conv_handler = ConversationHandler(
         CREATE_POST_LOCATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, create_post_location)],
         CREATE_POST_FISH: [MessageHandler(filters.TEXT & ~filters.COMMAND, create_post_fish)],
         CREATE_POST_IMAGE: [
+            CommandHandler("done", finish_media_group),
             MessageHandler(filters.PHOTO, lambda u, c: create_post_image(u, c, CatchTgTable, UserTgTable, CatchTgImage)),
             MessageHandler(filters.TEXT & ~filters.COMMAND, lambda u, c: create_post_image(u, c, CatchTgTable, UserTgTable, CatchTgImage))
         ],
         WAITING_MEDIA_GROUP: [
-            CommandHandler("done", finish_media_group),  # Добавьте это
+            # CommandHandler("done", finish_media_group),  # Добавьте это
             MessageHandler(filters.TEXT & ~filters.COMMAND, finish_media_group),
             CallbackQueryHandler(cancel_create_post, pattern=f"^{CALLBACK_CANCEL_POST}$")
         ],
