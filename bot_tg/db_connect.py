@@ -127,7 +127,7 @@ class CacthTg(Base):
     post_add = Column(Boolean, default=False, nullable=True, comment="Добавлен улов в основную базу")
     message_id = Column(Text, nullable=False, default="0", comment="id сообщения пользователя в канале")
 
-    user_tg = relationship("UserTg", back_populates="catches")
+    user_tg = relationship("UserTg", back_populates="catches_tg")
     images = relationship("CacthTgImage", back_populates="cacthtg_img", cascade="all, delete-orphan")
     
     def __repr__(self):
