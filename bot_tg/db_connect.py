@@ -174,7 +174,7 @@ class Fish(Base):
     description = Column(Text, nullable=True)
     
     # Обратная связь с уловами
-    fish_catch = relationship("Catch", back_populates="fish_species")
+    fish_catch = relationship("Catch", back_populates="fish_species_relations")
     
     def __repr__(self):
         return f"<Fish(name={self.name})>"
