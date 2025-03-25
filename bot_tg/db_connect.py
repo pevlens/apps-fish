@@ -88,6 +88,28 @@ session = Session()
 
 Base = declarative_base()
 
+# Пользователь.
+# Обрати внимание: здесь определена только базовая модель User,
+# поскольку исходная модель Django не приведена.
+class User(Base):
+    __tablename__ = "auth_user"  # используем таблицу, существующую в Django
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(150), unique=True, nullable=False)
+    first_name = Column(String(30))
+    last_name = Column(String(150))
+    email = Column(String(254))
+    # Можно добавить и другие поля, если они нужны
+
+    # Связи: например, у пользователя может быть много уловов (Catch)
+    fishman_catch = relationship("Catch", back_populates="user_id", cascade="all, delete-orphan")
+    # Связь один-к-одному с Profile
+    profile_relations = relationship("Profile", back_populates="user_id", uselist=False)
+    
+    def __repr__(self):
+        return f"<User(id={self.id}, username={self.username})>"
+    
+
 class UserTg(Base):
     __tablename__ = "manageappfish_usertg"
 
@@ -131,43 +153,11 @@ class CacthTg(Base):
     images = relationship("CacthTgImage", back_populates="cacthtg_img", cascade="all, delete-orphan")
     
     def __repr__(self):
-        return f"<CacthTg(user_id={self.user_id}, fish={self.fish}, weight={self.weight})>"
+        return f"<CacthTg(user_id={self.user}, fish={self.fish}, weight={self.weight})>"
 
 
-class CacthTgImage(Base):
-    __tablename__ = "manageappfish_cacthtgimage"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    cacthtg = Column(Integer, ForeignKey("manageappfish_cacthtg.id", ondelete="CASCADE"), nullable=False)
-    image = Column(String, nullable=True, comment="Путь к изображению")
-    image_hash = Column(String(164), index=True, nullable=True, comment="Хеш изображения")
-
-    cacthtg_img = relationship("CacthTg", back_populates="images")
-    fish_image_catch = relationship("Cacth", back_populates="image_ref")
-    def __repr__(self):
-        return f"<CacthTgImage(cacthtg_id={self.cacthtg_id}, image={self.image})>"
 
 
-# Пользователь.
-# Обрати внимание: здесь определена только базовая модель User,
-# поскольку исходная модель Django не приведена.
-class User(Base):
-    __tablename__ = "auth_user"  # используем таблицу, существующую в Django
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String(150), unique=True, nullable=False)
-    first_name = Column(String(30))
-    last_name = Column(String(150))
-    email = Column(String(254))
-    # Можно добавить и другие поля, если они нужны
-
-    # Связи: например, у пользователя может быть много уловов (Catch)
-    fishman_catch = relationship("Catch", back_populates="user_id", cascade="all, delete-orphan")
-    # Связь один-к-одному с Profile
-    profile_relations = relationship("Profile", back_populates="user_id", uselist=False)
-    
-    def __repr__(self):
-        return f"<User(id={self.id}, username={self.username})>"
 
 # Вид рыбы.
 class Fish(Base):
@@ -226,7 +216,7 @@ class Catch(Base):
     image_ref = relationship("CacthTgImage", back_populates="fish_image_catch")
     
     def __repr__(self):
-        return f"<Catch(user_id={self.user_id}, fish_species_id={self.fish_species_id}, weight={self.weight})>"
+        return f"<Catch(user_id={self.user_id}, fish_species_id={self.fish_species}, weight={self.weight})>"
 
 # Снаряжение.
 class Gear(Base):
@@ -279,6 +269,19 @@ class Profile(Base):
         return f"<Profile(user_id={self.user_id}, slug={self.slug})>"
 
 
+
+class CacthTgImage(Base):
+    __tablename__ = "manageappfish_cacthtgimage"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    cacthtg = Column(Integer, ForeignKey("manageappfish_cacthtg.id", ondelete="CASCADE"), nullable=False)
+    image = Column(String, nullable=True, comment="Путь к изображению")
+    image_hash = Column(String(164), index=True, nullable=True, comment="Хеш изображения")
+
+    cacthtg_img = relationship("CacthTg", back_populates="images")
+    fish_image_catch = relationship("Cacth", back_populates="image_ref")
+    def __repr__(self):
+        return f"<CacthTgImage(cacthtg_id={self.cacthtg}, image={self.image})>"
 
 
 
