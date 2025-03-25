@@ -274,14 +274,14 @@ class CacthTgImage(Base):
     __tablename__ = "manageappfish_cacthtgimage"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    cacthtg = Column(Integer, ForeignKey("manageappfish_cacthtg.id", ondelete="CASCADE"), nullable=False)
+    cacthtg_id = Column(Integer, ForeignKey("manageappfish_cacthtg.id", ondelete="CASCADE"), nullable=False)
     image = Column(String, nullable=True, comment="Путь к изображению")
     image_hash = Column(String(164), index=True, nullable=True, comment="Хеш изображения")
 
     cacthtg_img = relationship("CacthTg", back_populates="images")
     fish_image_catch = relationship("Catch", back_populates="image_ref")
     def __repr__(self):
-        return f"<CacthTgImage(cacthtg_id={self.cacthtg}, image={self.image})>"
+        return f"<CacthTgImage(cacthtg_id={self.cacthtg_id}, image={self.image})>"
 
 
 
