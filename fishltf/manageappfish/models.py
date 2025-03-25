@@ -10,7 +10,7 @@ class UserTg(models.Model):
     username = models.CharField("username в TG", max_length=100,blank=True,null=True)
     first_name =  models.CharField("имя в TG", max_length=100,blank=True,null=True)
     last_name =  models.CharField("фамилия в TG", max_length=100,blank=True,null=True)
-    phone_number =  models.IntegerField("номер телефона в телеграмм", unique=True, null=True, blank=True)
+    phone_number =  models.BigIntegerField("номер телефона в телеграмм", unique=True, null=True, blank=True)
     image = models.ImageField(upload_to='avatars/', blank=True, null=True)
     metod_catch =  models.CharField("основной метод ловли", max_length=100,blank=True,null=True)
     gear_main =  models.CharField("оснавная снать", max_length=100,blank=True,null=True)
