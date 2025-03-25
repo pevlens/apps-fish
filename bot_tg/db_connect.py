@@ -107,7 +107,7 @@ class UserTg(Base):
     profile_change = Column(Boolean, default=False, nullable=True, comment="Изменен ли профиль")
     created_at = Column(DateTime, server_default=func.now(), comment="Дата создания")
 
-    catches = relationship("CacthTg", back_populates="user", cascade="all, delete-orphan")
+    catches_tg = relationship("CacthTg", back_populates="user_tg", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<UserTg(first_name={self.first_name}, last_name={self.last_name}, userid={self.userid}, username={self.username})>"
@@ -117,7 +117,7 @@ class CacthTg(Base):
     __tablename__ = "manageappfish_cacthtg"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("user_tg.id", ondelete="CASCADE"), nullable=False)
+    user = Column(Integer, ForeignKey("manageappfish_usertg.id", ondelete="CASCADE"), nullable=False)
     about = Column(Text, nullable=True, comment="Описание")
     weight = Column(Integer, nullable=True, comment="Вес")
     bait = Column(Text, nullable=True, comment="Приманка")
@@ -127,9 +127,9 @@ class CacthTg(Base):
     post_add = Column(Boolean, default=False, nullable=True, comment="Добавлен улов в основную базу")
     message_id = Column(Text, nullable=False, default="0", comment="id сообщения пользователя в канале")
 
-    user = relationship("UserTg", back_populates="catches")
-    images = relationship("CacthTgImage", back_populates="cacthtg", cascade="all, delete-orphan")
-
+    user_tg = relationship("UserTg", back_populates="catches")
+    images = relationship("CacthTgImage", back_populates="cacthtg_img", cascade="all, delete-orphan")
+    
     def __repr__(self):
         return f"<CacthTg(user_id={self.user_id}, fish={self.fish}, weight={self.weight})>"
 
@@ -138,12 +138,12 @@ class CacthTgImage(Base):
     __tablename__ = "manageappfish_cacthtgimage"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    cacthtg_id = Column(Integer, ForeignKey("catch_tg.id", ondelete="CASCADE"), nullable=False)
+    cacthtg = Column(Integer, ForeignKey("manageappfish_cacthtg.id", ondelete="CASCADE"), nullable=False)
     image = Column(String, nullable=True, comment="Путь к изображению")
     image_hash = Column(String(164), index=True, nullable=True, comment="Хеш изображения")
 
-    cacthtg = relationship("CacthTg", back_populates="images")
-
+    cacthtg_img = relationship("CacthTg", back_populates="images")
+    fish_image_catch = relationship("Cacth", back_populates="image_ref")
     def __repr__(self):
         return f"<CacthTgImage(cacthtg_id={self.cacthtg_id}, image={self.image})>"
 
@@ -162,9 +162,9 @@ class User(Base):
     # Можно добавить и другие поля, если они нужны
 
     # Связи: например, у пользователя может быть много уловов (Catch)
-    fishman_catch = relationship("Catch", back_populates="user", cascade="all, delete-orphan")
+    fishman_catch = relationship("Catch", back_populates="user_id", cascade="all, delete-orphan")
     # Связь один-к-одному с Profile
-    profile = relationship("Profile", back_populates="user", uselist=False)
+    profile_relations = relationship("Profile", back_populates="user_id", uselist=False)
     
     def __repr__(self):
         return f"<User(id={self.id}, username={self.username})>"
@@ -199,34 +199,19 @@ class Place(Base):
     about = Column(Text, nullable=True)
     
     # Связь с уловами, где используется эта локация
-    catches = relationship("Catch", back_populates="location")
+    catches_relations = relationship("Catch", back_populates="location_relations")
     
     def __repr__(self):
         return f"<Place(location_name={self.location_name})>"
-
-# Модель для изображений, ранее описанная как CacthTgImage.
-class CacthTgImage(Base):
-    __tablename__ = "appfish_catchtgimage"
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    image = Column(String, nullable=True, comment="Путь к изображению")
-    image_hash = Column(String(164), index=True, nullable=True, comment="Хеш изображения")
-    
-    # Обратная связь: изображение используется в улове (основное фото)
-    fish_image_catch = relationship("Catch", back_populates="image_ref")
-    
-    def __repr__(self):
-        return f"<CacthTgImage(id={self.id})>"
-
 # Улов.
 class Catch(Base):
     __tablename__ = "appfish_catch"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
-    fish_species_id = Column(Integer, ForeignKey("fish.id", ondelete="CASCADE"), nullable=False)
-    location_name_id = Column(Integer, ForeignKey("place.id", ondelete="SET NULL"), nullable=True)
-    image_id = Column(Integer, ForeignKey("catch_tg_image.id", ondelete="CASCADE"), nullable=True)
+    user = Column(Integer, ForeignKey("auth_user.id", ondelete="CASCADE"), nullable=False)
+    fish_species = Column(Integer, ForeignKey("appfish_fish.id", ondelete="CASCADE"), nullable=False)
+    location_name = Column(Integer, ForeignKey("appfish_place.id", ondelete="SET NULL"), nullable=True)
+    image = Column(Integer, ForeignKey("manageappfish_cacthtgimage.id", ondelete="CASCADE"), nullable=True)
     bait = Column(Text, nullable=True)
     weight = Column(Integer, nullable=False)
     length = Column(Integer, nullable=True)
@@ -235,9 +220,9 @@ class Catch(Base):
     date_catch = Column(Date, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), comment="Дата создания")
     
-    user = relationship("User", back_populates="fishman_catch")
-    fish_species = relationship("Fish", back_populates="fish_catch")
-    location = relationship("Place", back_populates="catches")
+    user_id = relationship("User", back_populates="fishman_catch")
+    fish_species_relations= relationship("Fish", back_populates="fish_catch")
+    location_relations = relationship("Place", back_populates="catches_relations")
     image_ref = relationship("CacthTgImage", back_populates="fish_image_catch")
     
     def __repr__(self):
@@ -252,7 +237,7 @@ class Gear(Base):
     description = Column(Text, nullable=True)
     
     # Обратная связь: профиль с основной снастью
-    profiles = relationship("Profile", back_populates="gear_main")
+    profiles_relationship = relationship("Profile", back_populates="gear_main_relationship")
     
     def __repr__(self):
         return f"<Gear(name={self.name})>"
@@ -266,7 +251,7 @@ class Method(Base):
     description = Column(Text, nullable=True)
     
     # Обратная связь: профиль с основным методом ловли
-    profiles = relationship("Profile", back_populates="metod_catch")
+    profiles_relationship = relationship("Profile", back_populates="metod_catch_relationship")
     
     def __repr__(self):
         return f"<Method(name={self.name})>"
@@ -276,9 +261,9 @@ class Profile(Base):
     __tablename__ = "appfish_profile"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False, unique=True)
-    gear_main_id = Column(Integer, ForeignKey("gear.id", ondelete="SET NULL"), nullable=True)
-    metod_catch_id = Column(Integer, ForeignKey("method.id", ondelete="SET NULL"), nullable=True)
+    user = Column(Integer, ForeignKey("auth_user.id", ondelete="CASCADE"), nullable=False, unique=True)
+    gear_main = Column(Integer, ForeignKey("appfish_gear.id", ondelete="SET NULL"), nullable=True)
+    metod_catch = Column(Integer, ForeignKey("appfish_method.id", ondelete="SET NULL"), nullable=True)
     bio = Column(Text, nullable=True, comment="Биография")
     alias = Column(Text, nullable=True, comment="Псевдоним")
     avatar = Column(String, nullable=True, comment="Путь к аватару")
@@ -286,9 +271,9 @@ class Profile(Base):
     created_at = Column(DateTime, server_default=func.now(), comment="Дата создания")
     slug = Column(String, unique=True, nullable=True, comment="URL Slug")
     
-    user = relationship("User", back_populates="profile")
-    gear_main = relationship("Gear", back_populates="profiles")
-    metod_catch = relationship("Method", back_populates="profiles")
+    user_id = relationship("User", back_populates="profile_relations")
+    gear_main_relationship = relationship("Gear", back_populates="profiles_relationship")
+    metod_catch_relationship = relationship("Method", back_populates="profiles_relationship")
     
     def __repr__(self):
         return f"<Profile(user_id={self.user_id}, slug={self.slug})>"
