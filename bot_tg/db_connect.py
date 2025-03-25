@@ -102,9 +102,9 @@ class User(Base):
     # Можно добавить и другие поля, если они нужны
 
     # Связи: например, у пользователя может быть много уловов (Catch)
-    fishman_catch = relationship("Catch", back_populates="user_id", cascade="all, delete-orphan")
+    fishman_catch = relationship("Catch", back_populates="user_id_relationship", cascade="all, delete-orphan")
     # Связь один-к-одному с Profile
-    profile_relations = relationship("Profile", back_populates="user_id", uselist=False)
+    profile_relations = relationship("Profile", back_populates="user_id_relationship", uselist=False)
     
     def __repr__(self):
         return f"<User(id={self.id}, username={self.username})>"
@@ -139,7 +139,7 @@ class CacthTg(Base):
     __tablename__ = "manageappfish_cacthtg"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user = Column(Integer, ForeignKey("manageappfish_usertg.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("manageappfish_usertg.id", ondelete="CASCADE"), nullable=False)
     about = Column(Text, nullable=True, comment="Описание")
     weight = Column(Integer, nullable=True, comment="Вес")
     bait = Column(Text, nullable=True, comment="Приманка")
@@ -153,7 +153,7 @@ class CacthTg(Base):
     images = relationship("CacthTgImage", back_populates="cacthtg_img", cascade="all, delete-orphan")
     
     def __repr__(self):
-        return f"<CacthTg(user_id={self.user}, fish={self.fish}, weight={self.weight})>"
+        return f"<CacthTg(user_id={self.user_id}, fish={self.fish}, weight={self.weight})>"
 
 
 
@@ -198,7 +198,7 @@ class Catch(Base):
     __tablename__ = "appfish_catch"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user = Column(Integer, ForeignKey("auth_user.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("auth_user.id", ondelete="CASCADE"), nullable=False)
     fish_species = Column(Integer, ForeignKey("appfish_fish.id", ondelete="CASCADE"), nullable=False)
     location_name = Column(Integer, ForeignKey("appfish_place.id", ondelete="SET NULL"), nullable=True)
     image = Column(Integer, ForeignKey("manageappfish_cacthtgimage.id", ondelete="CASCADE"), nullable=True)
@@ -210,7 +210,7 @@ class Catch(Base):
     date_catch = Column(Date, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), comment="Дата создания")
     
-    user_id = relationship("User", back_populates="fishman_catch")
+    user_id_relationship = relationship("User", back_populates="fishman_catch")
     fish_species_relations= relationship("Fish", back_populates="fish_catch")
     location_relations = relationship("Place", back_populates="catches_relations")
     image_ref = relationship("CacthTgImage", back_populates="fish_image_catch")
@@ -251,7 +251,7 @@ class Profile(Base):
     __tablename__ = "appfish_profile"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user = Column(Integer, ForeignKey("auth_user.id", ondelete="CASCADE"), nullable=False, unique=True)
+    user_id = Column(Integer, ForeignKey("auth_user.id", ondelete="CASCADE"), nullable=False, unique=True)
     gear_main = Column(Integer, ForeignKey("appfish_gear.id", ondelete="SET NULL"), nullable=True)
     metod_catch = Column(Integer, ForeignKey("appfish_method.id", ondelete="SET NULL"), nullable=True)
     bio = Column(Text, nullable=True, comment="Биография")
@@ -261,7 +261,7 @@ class Profile(Base):
     created_at = Column(DateTime, server_default=func.now(), comment="Дата создания")
     slug = Column(String, unique=True, nullable=True, comment="URL Slug")
     
-    user_id = relationship("User", back_populates="profile_relations")
+    user_id_relationship = relationship("User", back_populates="profile_relations")
     gear_main_relationship = relationship("Gear", back_populates="profiles_relationship")
     metod_catch_relationship = relationship("Method", back_populates="profiles_relationship")
     
