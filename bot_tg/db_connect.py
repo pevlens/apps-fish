@@ -252,8 +252,8 @@ class Profile(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("auth_user.id", ondelete="CASCADE"), nullable=False, unique=True)
-    gear_main = Column(Integer, ForeignKey("appfish_gear.id", ondelete="SET NULL"), nullable=True)
-    metod_catch = Column(Integer, ForeignKey("appfish_method.id", ondelete="SET NULL"), nullable=True)
+    gear_main_id = Column(Integer, ForeignKey("appfish_gear.id", ondelete="SET NULL"), nullable=True)
+    metod_catch_id = Column(Integer, ForeignKey("appfish_method.id", ondelete="SET NULL"), nullable=True)
     bio = Column(Text, nullable=True, comment="Биография")
     alias = Column(Text, nullable=True, comment="Псевдоним")
     avatar = Column(String, nullable=True, comment="Путь к аватару")
