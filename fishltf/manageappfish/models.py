@@ -36,7 +36,7 @@ class CacthTg(models.Model):
     location_name = models.CharField("Локация", blank=True, null=True,  max_length=200)
     fish =  models.CharField("Рыба", max_length=100,blank=True,null=True)
     post_add = models.BooleanField("Добавлен улов в основную базу",default=False, blank=True,null=True)
-    message_id =  models.BigIntegerField("id сообщения пользователя в канале", null=False,default=0)
+    message_id =  models.TextField("id сообщения пользователя в канале", null=False,default="0")
 #    image_hash = models.CharField(max_length=164, db_index=True, blank=True, null=True)
     pass
 

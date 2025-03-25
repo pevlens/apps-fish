@@ -18,8 +18,7 @@ def send_deletion_request(sender, instance, **kwargs):
     API_PORT  = os.getenv('API_PORT', '5000')
     API_KEY =  os.getenv('X-API-KEY', 'qwdqwd')
     API_SCHEME =  os.getenv('API_SCHEME', 'http')
-    API_PATH =  os.getenv('API_PATH', '/send_message')
-
+    API_PATH =  os.getenv('API_PATH', '/send_message')   
     payload = {
     'user_id': instance.user.userid,  # замените на нужный user_id
     'message': 'Привет, Ваш улов не был потвержден Администратором так как были ранее дубликаты такого фото.',

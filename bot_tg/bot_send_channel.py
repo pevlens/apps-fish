@@ -562,8 +562,8 @@ async def send_post_to_channel(update: Update, context: ContextTypes.DEFAULT_TYP
             #     logger.warning(f"Фото поста не найдено: {photo_path}")
         try:
             messages = await context.bot.send_media_group(chat_id=channel_id, media=media)
-            message_id = messages[0].message_id if messages else None
-
+            # message_id = messages.message_id if messages else None
+            message_id =  ",".join(str(msg.message_id) for msg in messages)
                         # Закрываем все BytesIO объекты
 
         except Exception as e:

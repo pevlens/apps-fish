@@ -1,6 +1,7 @@
 import logging
 from fastapi import FastAPI, Request, HTTPException
 from telegram import Bot
+from telegram.error import BadRequest
 import json
 import os
 from pydantic import BaseModel
@@ -53,10 +54,16 @@ async def send_message(request: Request):
         )
 
         if "channel_message_id" in data:
-            await bot.delete_message(
-                chat_id=CHANNELID,
-                message_id=data["channel_message_id"]
-            )
+            lst_messages = [ str(x) for x in data["channel_message_id"].split(",")] if data["channel_message_id"] else []
+            for del_msg in lst_messages:
+                try:
+                    await bot.delete_message(
+                        chat_id=CHANNELID,
+                        message_id= del_msg
+                    )
+                except BadRequest as e:
+                    if "Message can't be deleted" in str(e):
+                        print(f"Сообщение {del_msg} уже удалено или недоступно!") 
 
         return {"status": "success", "sent_message_id": sent_message.message_id}
 

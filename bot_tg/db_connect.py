@@ -46,7 +46,7 @@ CatchTgTable = Table(
     Column('fish', String, nullable=True),
     Column('created_at', DateTime,default=datetime.utcnow,  nullable=False),
     Column('user_id', BigInteger, ForeignKey('manageappfish_usertg.id'),  nullable=False),
-    Column('message_id', BigInteger,  nullable=False, default=0),
+    Column('message_id', String,  nullable=False, default="0"),
     Column('image_hash', String, nullable=True),
     Column('post_add', Boolean, nullable=True, default=False),
     
