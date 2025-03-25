@@ -30,85 +30,47 @@ async def delete_profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return DELETE_CONFIRMATION
 
 
-async def confirm_delete(update: Update, context: ContextTypes.DEFAULT_TYPE, UserTgTable) -> int:
+async def confirm_delete(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Подтверждение удаления профиля."""
     query = update.callback_query
     await query.answer()
 
-    user = query.from_user
+    tg_user = query.from_user
 
-    user_id = user.id
     if query.data == CALLBACK_CONFIRM_DELETE:
-            
+        async with async_session() as session:  # async_session должна быть настроена заранее
+            async with session.begin():
+                # Получаем профиль из таблицы Telegram-пользователей по user.id
+                user_tg = await session.scalar(select(UserTg).where(UserTg.userid == tg_user.id))
+                # Получаем пользователя из auth_user по username вида "tg_{id}"
+                user_auth = await session.scalar(select(User).where(User.username == f"tg_{tg_user.id}"))
+                
+                image_path = None
+                if user_tg:
+                    image_path = user_tg.image  # Получаем путь к изображению, если он есть
+                    await session.delete(user_tg)
+                if user_auth:
+                    await session.delete(user_auth)
+            # session.commit() происходит автоматически при выходе из session.begin()
+        
+        # Если имеется путь к изображению, пытаемся удалить файл из MinIO
+        if image_path:
+            success = await delete_from_minio(image_path)
+            if not success:
+                logger.error(f"Не удалось удалить файл из MinIO: {image_path}")
+
+        if user_tg:
+            logger.info(f"Пользователь {tg_user.id} успешно удалил свой профиль.")
+            await query.message.reply_text(MESSAGES["profile_deleted"])
+        else:
+            logger.warning(f"Попытка удаления несуществующего профиля пользователем {tg_user.id}.")
+            await query.message.reply_text("Ошибка: Профиль не найден.")
+    
         # image = select(UserTgTable).where(UserTgTable.c.userid == user.id)
+        
         # stmt = UserTgTable.delete().where(UserTgTable.c[USER_ID_FIELD] == user.id)
         # stmt2 = UserTable.delete().where(UserTable.c["username"] == f"tg_{user.id}")
-        try:
-            async with engine.begin() as conn:
-                # 1. Удаление изображения из MinIO
-                image_result = await conn.execute(
-                    select(UserTgTable.c.image).where(UserTgTable.c.userid == user_id))
-                image_data = image_result.scalar()
-                if image_data:
-                    success = await delete_from_minio(image_data)
-                    if not success:
-                        logger.error(f"Не удалось удалить файл из MinIO: {image_data}")
-                
-                # 2. Автоматическое определение всех зависимостей
-                inspector = inspect(engine)
-                dependencies = set()
-
-                # Собираем связанные таблицы для auth_user и manageappfish_usertg
-                for target_table in ['auth_user', 'manageappfish_usertg']:
-                    for table_name in inspector.get_table_names():
-                        for fk in inspector.get_foreign_keys(table_name):
-                            if fk['referred_table'] == target_table:
-                                dependencies.add((
-                                    table_name,
-                                    fk['constrained_columns'],
-                                    target_table
-                                ))
-
-                # 3. Удаление данных из зависимых таблиц
-                processed_tables = set()
-                for table_info in dependencies:
-                    table_name, columns, ref_table = table_info
-                    if table_name in processed_tables:
-                        continue
-
-                    try:
-                        tbl = Table(table_name, metadata, autoload_with=engine)
-                        
-                        # Определяем условие удаления
-                        for col in columns:
-                            if ref_table == 'auth_user':
-                                # Для связи с auth_user используем username
-                                condition = (getattr(tbl.c, col) == f"tg_{user_id}")
-                            else:
-                                # Для других связей используем user_id
-                                condition = (getattr(tbl.c, col) == user_id)
-                            
-                            await conn.execute(tbl.delete().where(condition))
-                            processed_tables.add(table_name)
-                            break  # Обработали одну связь для таблицы
-
-                    except Exception as e:
-                        logger.error(f"Ошибка при удалении из {table_name}: {e}")
-
-               # 4. Удаление основных записей
-                await conn.execute(UserTgTable.delete().where(UserTgTable.c.userid == user_id))
-                result = await conn.execute(
-                    UserTable.delete().where(UserTable.c.username == f"tg_{user_id}")
-                )
-
-                if result.rowcount > 0:
-                    logger.info(f"Пользователь {user_id} успешно удалён")
-                    await query.message.reply_text(MESSAGES["profile_deleted"])
-                else:
-                    logger.warning(f"Попытка удаления несуществующего профиля: {user_id}")
-                    await query.message.reply_text("Ошибка: Профиль не найден")
-
-
+        # try:
         #     with engine.connect() as conn:
         #         result_image = conn.execute(image).fetchone()
         #         result = conn.execute(stmt)
@@ -116,25 +78,24 @@ async def confirm_delete(update: Update, context: ContextTypes.DEFAULT_TYPE, Use
         #         conn.commit()
 
 
-            # if result_image.image:  # Проверяем наличие пути
-            #             success = await delete_from_minio(result_image.image)
-            #             if not success:
-            #                 logger.error(f"Не удалось удалить файл из MinIO: {result_image.image}")
+        #     if result_image.image:  # Проверяем наличие пути
+        #                 success = await delete_from_minio(result_image.image)
+        #                 if not success:
+        #                     logger.error(f"Не удалось удалить файл из MinIO: {result_image.image}")
 
-            # if result.rowcount > 0:
-            #     logger.info(f"Пользователь {user.id} успешно удалил свой профиль.")
-            #     await query.message.reply_text(MESSAGES["profile_deleted"])
-            # else:
-            #     logger.warning(f"Попытка удаления несуществующего профиля пользователем {user.id}.")
-            #     await query.message.reply_text("Ошибка: Профиль не найден.")
-        except SQLAlchemyError as e:
-            logger.error(f"Ошибка базы данных: {e}")
+        #     if result.rowcount > 0:
+        #         logger.info(f"Пользователь {user.id} успешно удалил свой профиль.")
+        #         await query.message.reply_text(MESSAGES["profile_deleted"])
+        #     else:
+        #         logger.warning(f"Попытка удаления несуществующего профиля пользователем {user.id}.")
+        #         await query.message.reply_text("Ошибка: Профиль не найден.")
 
-        except Exception as e:
-            logger.error(f"Ошибка при удалении профиля пользователя {user.id}: {e}")
-            await query.message.reply_text("Произошла ошибка при удалении профиля. Попробуйте снова.")
+
+        # except Exception as e:
+        #     logger.error(f"Ошибка при удалении профиля пользователя {user.id}: {e}")
+        #     await query.message.reply_text("Произошла ошибка при удалении профиля. Попробуйте снова.")
     elif query.data == CALLBACK_CANCEL_DELETE:
-        logger.info(f"Пользователь {user.id} отменил удаление профиля.")
+        logger.info(f"Пользователь {tg_user.id} отменил удаление профиля.")
         await query.message.reply_text(MESSAGES["deletion_canceled"])
 
     # Удаляем клавиатуру после действия
@@ -151,10 +112,10 @@ delete_conv_handler = ConversationHandler(
     entry_points=[CallbackQueryHandler(delete_profile, pattern=f"^{CALLBACK_DELETE_PROFILE}$")],
     states={
         DELETE_CONFIRMATION: [
-            CallbackQueryHandler(lambda u, c: confirm_delete(u, c, UserTgTable), pattern=f"^{CALLBACK_CONFIRM_DELETE}|{CALLBACK_CANCEL_DELETE}$")
+            CallbackQueryHandler(lambda u, c: confirm_delete(u, c), pattern=f"^{CALLBACK_CONFIRM_DELETE}|{CALLBACK_CANCEL_DELETE}$")
         ]
     },
     fallbacks=[
-        CallbackQueryHandler(lambda u, c: confirm_delete(u, c, UserTgTable), pattern=f"^{CALLBACK_CONFIRM_DELETE}|{CALLBACK_CANCEL_DELETE}$")
+        CallbackQueryHandler(lambda u, c: confirm_delete(u, c), pattern=f"^{CALLBACK_CONFIRM_DELETE}|{CALLBACK_CANCEL_DELETE}$")
     ]
 )
