@@ -199,9 +199,9 @@ class Catch(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("auth_user.id", ondelete="CASCADE"), nullable=False)
-    fish_species = Column(Integer, ForeignKey("appfish_fish.id", ondelete="CASCADE"), nullable=False)
-    location_name = Column(Integer, ForeignKey("appfish_place.id", ondelete="SET NULL"), nullable=True)
-    image = Column(Integer, ForeignKey("manageappfish_cacthtgimage.id", ondelete="CASCADE"), nullable=True)
+    fish_species_id = Column(Integer, ForeignKey("appfish_fish.id", ondelete="CASCADE"), nullable=False)
+    location_name_id = Column(Integer, ForeignKey("appfish_place.id", ondelete="SET NULL"), nullable=True)
+    image_id = Column(Integer, ForeignKey("manageappfish_cacthtgimage.id", ondelete="CASCADE"), nullable=True)
     bait = Column(Text, nullable=True)
     weight = Column(Integer, nullable=False)
     length = Column(Integer, nullable=True)
@@ -216,7 +216,7 @@ class Catch(Base):
     image_ref = relationship("CacthTgImage", back_populates="fish_image_catch")
     
     def __repr__(self):
-        return f"<Catch(user_id={self.user_id}, fish_species_id={self.fish_species}, weight={self.weight})>"
+        return f"<Catch(user_id={self.user_id}, fish_species_id={self.fish_species_id}, weight={self.weight})>"
 
 # Снаряжение.
 class Gear(Base):
