@@ -279,7 +279,7 @@ class CacthTgImage(Base):
     image_hash = Column(String(164), index=True, nullable=True, comment="Хеш изображения")
 
     cacthtg_img = relationship("CacthTg", back_populates="images")
-    fish_image_catch = relationship("Cacth", back_populates="image_ref")
+    fish_image_catch = relationship("Catch", back_populates="image_ref")
     def __repr__(self):
         return f"<CacthTgImage(cacthtg_id={self.cacthtg}, image={self.image})>"
 
