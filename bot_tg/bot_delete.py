@@ -42,15 +42,21 @@ async def confirm_delete(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             async with session.begin():
                 # Получаем профиль из таблицы Telegram-пользователей по user.id
                 user_tg = await session.scalar(select(UserTg).where(UserTg.userid == tg_user.id))
+                cacth_tg = await session.scalar(select(CacthTg).where(CacthTg.user_id == user_tg.id))
                 # Получаем пользователя из auth_user по username вида "tg_{id}"
                 user_auth = await session.scalar(select(User).where(User.username == f"tg_{tg_user.id}"))
                 
                 image_path = None
                 if user_tg:
                     image_path = user_tg.image  # Получаем путь к изображению, если он есть
+                    await session.execute(delete(CacthTgImage).where(CacthTgImage.cacthtg_id == cacth_tg.id))
+                    await session.execute(delete(CacthTg).where(CacthTg.user_id == user_tg.id))
                     await session.delete(user_tg)
                 if user_auth:
-                    await session.delete(user_auth)
+                    await session.execute(delete(Profile).where(Profile.user_id == user_auth.id))
+                    await session.execute(delete(Catch).where(Catch.user_id == user_auth.id))
+                    await session.execute(delete(User).where(User.id == user_auth.id))
+                    # await session.delete(user_auth)
             # session.commit() происходит автоматически при выходе из session.begin()
         
         # Если имеется путь к изображению, пытаемся удалить файл из MinIO
