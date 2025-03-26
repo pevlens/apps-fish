@@ -42,15 +42,20 @@ async def confirm_delete(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             async with session.begin():
                 # Получаем профиль из таблицы Telegram-пользователей по user.id
                 user_tg = await session.scalar(select(UserTg).where(UserTg.userid == tg_user.id))
-                cacth_tg = await session.scalar(select(CacthTg).where(CacthTg.user_id == user_tg.id))
+               
                 # Получаем пользователя из auth_user по username вида "tg_{id}"
                 user_auth = await session.scalar(select(User).where(User.username == f"tg_{tg_user.id}"))
                 
                 image_path = None
                 if user_tg:
+                    cacth_tg_list = await session.scalars(select(CacthTg).where(CacthTg.user_id == user_tg.id))
                     image_path = user_tg.image  # Получаем путь к изображению, если он есть
-                    await session.execute(delete(CacthTgImage).where(CacthTgImage.cacthtg_id == cacth_tg.id))
+
+                    for cacth_tg in cacth_tg_list:
+                        await session.execute(delete(CacthTgImage).where(CacthTgImage.cacthtg_id == cacth_tg.id))
+
                     await session.execute(delete(CacthTg).where(CacthTg.user_id == user_tg.id))
+
                     await session.delete(user_tg)
                 if user_auth:
                     await session.execute(delete(Profile).where(Profile.user_id == user_auth.id))
