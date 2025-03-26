@@ -104,7 +104,7 @@ class User(Base):
     # Связи: например, у пользователя может быть много уловов (Catch)
     fishman_catch = relationship("Catch", back_populates="user_id_relationship", cascade="all, delete-orphan")
     # Связь один-к-одному с Profile
-    profile_relations = relationship("Profile", back_populates="user_id_relationship", uselist=False)
+    profile_relations = relationship("Profile", back_populates="user_id_relationship", cascade="all, delete-orphan", passive_deletes=True)
     
     def __repr__(self):
         return f"<User(id={self.id}, username={self.username})>"
