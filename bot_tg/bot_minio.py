@@ -49,9 +49,10 @@ async def delete_from_minio(object_path: str) -> bool:
     """
     try:
         # Разбиваем путь на бакет и объект
-        bucket_name, object_name = object_path.split('/', 1)
+        #bucket_name, object_name = object_path.split('/', 1)
         
-        minio_client.remove_object(bucket_name, object_name)
+        #minio_client.remove_object(bucket_name, object_name)
+        minio_client.remove_object(BUCKET_NAME, object_path)
         return True
         
     except S3Error as exc:
