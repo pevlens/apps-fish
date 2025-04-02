@@ -332,6 +332,11 @@ footer {
     padding: 15px;
     background-color: #08465e;
     color: white;
+    padding-top: 20px;
+}
+
+main {
+    margin-bottom: 20px; /* Или любое другое значение */
 }
 
 /* Контейнеры */
